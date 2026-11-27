@@ -17,6 +17,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess  # nosec B404
 import sys
 import time
@@ -66,6 +67,35 @@ def _is_run_complete(kind: str, env_id: str, tag: str, expected_steps: int) -> b
         and int(rec.get("final_test_steps", -1)) == 0
         and _file_sha256(ckpt) == rec.get("checkpoint_sha256")
     )
+
+
+def _sync_hei_artifacts(payload: dict[str, Any], kind: str, env_id: str, tag: str) -> None:
+    """Copy verified checkpoint_final.pt and receipt.json from hei-research artifacts into mirror dir."""
+    art_str = payload.get("artifacts")
+    if not art_str:
+        run_id = payload.get("id") or payload.get("run_id")
+        if run_id:
+            art_dir = Path.home() / ".local" / "state" / "hei-research" / "runs" / str(run_id) / "artifacts"
+        else:
+            return
+    else:
+        art_dir = Path(str(art_str))
+    ckpt_src = art_dir / "checkpoint_final.pt"
+    receipt_src = art_dir / "receipt.json"
+    if not ckpt_src.is_file() or not receipt_src.is_file():
+        return
+    mirror_dir = REPO_ROOT / "artifacts" / "stage1a-gpu" / ("anchors" if kind == "anchor" else "arms") / env_id
+    mirror_dir.mkdir(parents=True, exist_ok=True)
+    ckpt_dst = mirror_dir / f"{tag}.pt"
+    receipt_dst = mirror_dir / f"{tag}_receipt.json"
+    if not ckpt_dst.exists():
+        tmp = mirror_dir / f"{tag}.pt.tmp"
+        shutil.copy2(ckpt_src, tmp)
+        tmp.replace(ckpt_dst)
+    if not receipt_dst.exists():
+        rec = json.loads(receipt_src.read_text(encoding="utf-8"))
+        rec["mirror_checkpoint"] = str(ckpt_dst.relative_to(REPO_ROOT))
+        receipt_dst.write_text(json.dumps(rec, indent=2) + "\n", encoding="utf-8")
 
 
 def _run_hei_recipe(recipe: Path, backend: str, allow_remote: bool, wait_timeout: int) -> dict[str, Any]:
@@ -180,6 +210,7 @@ def main() -> None:
         t0 = time.monotonic()
         print(f"[{idx}/{len(pending)}] Launching {item['tag']} via hei-research ({args.backend})...", flush=True)
         payload = _run_hei_recipe(item["recipe"], args.backend, args.allow_remote, args.wait_timeout)
+        _sync_hei_artifacts(payload, item["kind"], item["env_id"], item["tag"])
         wall = time.monotonic() - t0
         if not _is_run_complete(item["kind"], item["env_id"], item["tag"], item["expected_steps"]):
             raise RuntimeError(

@@ -11,6 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL_PATH = REPO_ROOT / "configs" / "protocols" / "stage1_simplex_face_exposure_v1.json"
 RECIPE_DIR = REPO_ROOT / "configs" / "recipes" / "stage1a"
 JOB_SCRIPT = REPO_ROOT / "scripts" / "run_stage1a_gpu_job.py"
+MINECART_STANDALONE_SCRIPT = REPO_ROOT / "scripts" / "run_stage1a_minecart_kaggle.py"
 
 
 def write_recipe(
@@ -20,8 +21,9 @@ def write_recipe(
     seed: int,
     est_seconds: int,
     max_seconds: int,
+    script_path: Path = JOB_SCRIPT,
 ) -> None:
-    rel_script = Path(os.path.relpath(JOB_SCRIPT, path.parent)).as_posix()
+    rel_script = Path(os.path.relpath(script_path, path.parent)).as_posix()
     content = f"""[experiment]
 name = "{name}"
 script = "{rel_script}"
@@ -64,7 +66,9 @@ def main() -> None:
         max_s = 9000 if env_id == "minecart-v0" else 5400
         short_env = "minecart" if env_id == "minecart-v0" else "lunar"
 
-        # 21 Vertex-specialist anchor recipes (9 Minecart + 12 Lunar)
+        # 21 Vertex-specialist anchor recipes (9 Minecart standalone Kaggle/local + 12 Lunar local)
+        anchor_script = MINECART_STANDALONE_SCRIPT if env_id == "minecart-v0" else JOB_SCRIPT
+        anchor_max_s = 14400 if env_id == "minecart-v0" else max_s
         for v in range(int(b["anchor_spec"]["vertices"])):
             for seed in b["anchor_spec"]["anchor_seeds"]:
                 name = f"stage1a-{short_env}-anchor-v{v}-s{seed}"
@@ -74,11 +78,12 @@ def main() -> None:
                     dataset=f"{env_id}|anchor|vertex={v}",
                     seed=int(seed),
                     est_seconds=est_s,
-                    max_seconds=max_s,
+                    max_seconds=anchor_max_s,
+                    script_path=anchor_script,
                 )
                 anchor_count += 1
 
-        # 50 Stage-1A arm recipes (30 Minecart + 20 Lunar)
+        # 60 Stage-1A arm recipes (30 Minecart + 30 Lunar under protocol v1.3)
         for arm in b["arms_included"]:
             for seed in b["paired_seeds"]:
                 name = f"stage1a-{short_env}-{arm.replace('_', '-')}-s{seed}"
@@ -89,6 +94,7 @@ def main() -> None:
                     seed=int(seed),
                     est_seconds=est_s,
                     max_seconds=max_s,
+                    script_path=JOB_SCRIPT,
                 )
                 arm_count += 1
 

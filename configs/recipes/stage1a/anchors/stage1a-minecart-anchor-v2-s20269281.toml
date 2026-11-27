@@ -1,11 +1,11 @@
 [experiment]
 name = "stage1a-minecart-anchor-v2-s20269281"
-script = "../../../../scripts/run_stage1a_gpu_job.py"
+script = "../../../../scripts/run_stage1a_minecart_kaggle.py"
 seed = 20269281
 device = "cuda"
 min_vram_mib = 512
 estimated_seconds = 6700
-max_seconds = 9000
+max_seconds = 14400
 dataset = "minecart-v0|anchor|vertex=2"
 dataset_mib = 0
 compatibility = "stage1a-simplex-ppo-v1"

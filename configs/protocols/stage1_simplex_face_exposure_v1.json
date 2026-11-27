@@ -1,8 +1,14 @@
 {
   "schema_version": 1,
   "protocol_id": "stage1-simplex-face-exposure-v1",
-  "protocol_revision": "v1.2-gate1b-passed-authorized",
+  "protocol_revision": "v1.3-pre-arm-lunar-dirichlet-addendum",
   "status": "frozen_gate1b_passed_authorized",
+  "v1_3_pre_arm_addendum": {
+    "date": "2026-11-27",
+    "change": "Added static dirichlet_sparse (alpha=0.25) control arm to mo-lunar-lander-v3 (+10 GPU runs, ~9.5 GPU-h) so Table 1 provides a symmetric 3-arm showdown (uniform vs dirichlet_sparse vs fixed_face_balanced) across all three core d >= 3 benchmarks (d = 3, 4, 6).",
+    "trigger_evidence": "research/evidence/stage1a_cpu_exact_oracle_dev_v1.json (commit b8502af): dirichlet_sparse(0.25) achieved -64.9% non-vertex regret vs uniform on fruit-tree-v0 (d=6, n=12, p=0.00049) and outperformed fixed_face_balanced (0.2432 vs 0.3562, p=0.0210, 10/12 seeds) while passing strict shifted interior retention (+0.50%, CI [-0.06%, +1.10%]).",
+    "firewall_confirmation": "Authorized BEFORE any Stage-1A GPU arm run started; primary Holm k=3 endpoint (fixed_face_balanced vs uniform on argmax non-vertex face-cap regret) and final_test_steps = 0 remain unchanged."
+  },
   "execution_authorized": true,
   "gate1_signoff_required": true,
   "target_venues": {
@@ -130,7 +136,7 @@
       "kind": "static_sparse_prior_control",
       "sampler": "FaceBalancedPreferenceSampler(mode='dirichlet_sparse', dirichlet_alpha=0.25)",
       "distribution": "i.i.d. Dirichlet(0.25 * 1_d) per episode; concentrates mass near simplex boundaries with zero point mass on exact vertices",
-      "benchmarks_included": ["fruit-tree-v0", "fruit-tree-v0-d-subset-sweep", "minecart-v0"],
+      "benchmarks_included": ["fruit-tree-v0", "fruit-tree-v0-d-subset-sweep", "minecart-v0", "mo-lunar-lander-v3"],
       "curriculum_eval_overhead_steps": 0,
       "reporting_rule": "Reported as a predeclared secondary static-control contrast against fixed_face_balanced on non-vertex face-cap regret; if dirichlet_sparse ties or beats fixed_face_balanced, report sparse-prior sufficiency honestly."
     },
@@ -263,7 +269,7 @@
         "anchor_seeds": [20269381, 20269382, 20269383],
         "selection_rule": "final_fixed_budget_checkpoint_only_frozen_and_hashed_before_arm_eval"
       },
-      "arms_included": ["uniform", "fixed_face_balanced"],
+      "arms_included": ["uniform", "dirichlet_sparse", "fixed_face_balanced"],
       "paired_seeds": [20269301, 20269302, 20269303, 20269304, 20269305, 20269306, 20269307, 20269308, 20269309, 20269310],
       "training_interactions": 4000000,
       "streams": 8,
@@ -433,17 +439,17 @@
       "fruit_tree_d3_to_d5_subset_cpu": 90,
       "dst_d2_sanity_cpu": 20,
       "minecart_d3_gpu_3arms": 30,
-      "lunar_d4_gpu_2arms": 20,
+      "lunar_d4_gpu_3arms": 30,
       "vertex_specialist_anchors_gpu": 21,
       "total_stage1a_cpu_runs": 146,
-      "total_stage1a_gpu_runs": 71,
-      "total_stage1a_runs": 217
+      "total_stage1a_gpu_runs": 81,
+      "total_stage1a_runs": 227
     },
     "estimated_stage1a_gpu_hours": {
       "minecart_30_runs": 55.9,
-      "lunar_20_runs": 19.1,
+      "lunar_30_runs": 28.6,
       "vertex_anchors_21_runs": 28.2,
-      "total_gpu_hours": 103.2,
+      "total_gpu_hours": 112.7,
       "estimated_cpu_hours_fruit_tree_and_dst": 2.09,
       "max_gpu_hours_per_run_verified": 1.8639
     }
