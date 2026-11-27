@@ -10,9 +10,9 @@ Before editing any file or launching compute:
 
 1. Run:
    ```bash
-   python scripts/research_harness.py doctor
-   python scripts/research_harness.py status
-   python scripts/research_harness.py roadmap list
+   python3 scripts/research_harness.py doctor
+   python3 scripts/research_harness.py status
+   python3 scripts/research_harness.py roadmap list
    ```
 2. Read `docs/research/Q1_RESEARCH_BLUEPRINT.md` — this is the **locked 2-stage research strategy** (Stage 1: **RLC 2027** conference paper; Stage 2: **IEEE TNNLS** JCR Q1 journal extension).
 3. Read `docs/research/PROJECT_STATUS.md`, `docs/research/ROADMAP.md`, and `README.md` for the latest verified empirical state and active phase gate.

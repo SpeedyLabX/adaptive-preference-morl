@@ -1,8 +1,6 @@
 # Orca workspace configuration for SpeedyLabX/adaptive-preference-morl
-# Shares large local-only gitignored directories across isolated git worktrees
-# so parallel agent branches start instantly without duplicating checkpoints or graph caches.
-
-version: 1
+# Shares large local-only gitignored directories from the primary checkout into
+# every isolated git worktree without duplicating checkpoints or graph caches.
 
 worktree:
   sharedDirectories:
