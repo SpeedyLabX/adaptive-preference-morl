@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "Preference-Conditioned Multi-Objective Reinforcement Learning (Adaptive Preference MORL)"
+message: "If you use this codebase, protocols, or recorded evidence in your research, please cite this repository."
+type: software
+authors:
+  - family-names: "Huynh"
+    given-names: "Quoc Viet"
+    alias: "Am2uocVi3t"
+    affiliation: "SpeedyLabX, FPT University"
+  - family-names: "Le"
+    given-names: "Nguyen Gia Hung"
+    alias: "hei1sme"
+    affiliation: "SpeedyLabX, FPT University"
+  - family-names: "Ngo"
+    given-names: "Hoai Nam"
+    alias: "justHman"
+    affiliation: "SpeedyLabX, FPT University"
+repository-code: "https://github.com/SpeedyLabX/adaptive-preference-morl"
+url: "https://github.com/SpeedyLabX/adaptive-preference-morl"
+license: MIT
+keywords:
+  - multi-objective reinforcement learning
+  - preference-conditioned policies
+  - curriculum learning
+  - PCQN
+  - PPO
+  - reproducible ML

@@ -1,0 +1,118 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyTorch checkpoints and model weights
+checkpoints/
+models_checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Data & outputs
+data/
+artifacts/
+outputs/
+results/
+logs/
+wandb/
+runs/
+*.log
+
+# Literature source files (metadata and notes remain versioned)
+research/literature/pdfs/
+
+# Local ARIS runtime state; policy and integration docs remain versioned
+.aris/
+
+# Test, lint, and type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Environments & virtualenvs
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+credentials.local.*
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local tooling and editor state
+node_modules/
+.cache/
+.uv-cache/
+*.tmp
+*.bak
+*~
+
+# LaTeX build intermediates; manuscript sources and figures stay versioned
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Existing local presentation export; editable sources stay visible to Git
+/docs/course/presentation/REL301m_Slide_Package.zip
+
+# Windows download metadata; never part of the assessed media
+*Zone.Identifier
+
+# Local knowledge graph outputs
+graphify-out/
+**/graphify-out/

@@ -1,0 +1,24 @@
+# Candidate Preference Pool Configuration
+pool_size: 100
+include_simplex_corners: true
+include_edge_samples: true
+dirichlet_alpha: 1.0
+
+# Curriculum signal weights
+gap_weight: 0.25
+uncertainty_weight: 0.25
+coverage_weight: 0.25
+progress_weight: 0.25
+
+# Softmax Temperature and Exploration Floor (Proposal Eq 14)
+temperature: 0.2
+uniform_floor: 0.2
+locality_bandwidth: 0.2
+
+# Update Frequency
+update_interval_steps: 15000
+bootstrap_batch_size: 128
+curriculum_eval_episodes: 1
+
+# Must be ablated: rollout_only, update_only, rollout_and_update
+allocation_target: rollout_and_update
