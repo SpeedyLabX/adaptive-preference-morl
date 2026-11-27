@@ -21,6 +21,7 @@ import math
 import os
 import platform
 import random
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -372,10 +373,10 @@ def main() -> None:
     tmp_ckpt.replace(ckpt_out)
     ckpt_sha = _file_sha256(ckpt_out)
 
-    # Also save an atomic mirror copy in artifacts/stage1a-gpu/ for Stage-1A aggregation.
+    # Also save an atomic byte-identical mirror copy in artifacts/stage1a-gpu/ for Stage-1A aggregation.
     mirror_ckpt = mirror_dir / f"{tag}.pt"
     mirror_tmp = mirror_dir / f"{tag}.tmp"
-    torch.save(ckpt_payload, mirror_tmp)
+    shutil.copy2(ckpt_out, mirror_tmp)
     mirror_tmp.replace(mirror_ckpt)
 
     anchor_eval: dict[str, Any] | None = None
