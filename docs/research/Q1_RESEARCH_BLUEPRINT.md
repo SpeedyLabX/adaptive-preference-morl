@@ -1,7 +1,7 @@
 # Q1 / Top-Conference Research Blueprint
 
-**Repository:** `SpeedyLabX/adaptive-preference-morl`  
-**Synthesized from:** 3-model adversarial review & debate (Antigravity + Claude Code + Codex CLI, 2026-11-27)  
+**Repository:** `SpeedyLabX/adaptive-preference-morl`
+**Synthesized from:** 3-model adversarial review & debate (Antigravity + Claude Code + Codex CLI, 2026-11-27)
 **Status:** Strategy locked — pre-execution (requires full-text reading of `arXiv:2605.10585` and `arXiv:2609.26918` before freezing novelty claims)
 
 ---

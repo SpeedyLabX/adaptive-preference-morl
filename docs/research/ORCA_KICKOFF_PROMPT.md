@@ -4,22 +4,22 @@ Use this guide when opening your local WSL checkout (`adaptive-preference-morl`)
 
 ---
 
-## 1. Which Model to Initialize `agy` CLI With
+## 1. Which Model & Effort to Initialize `agy` CLI With (Late-2026 Stack)
 
-Choose your `agy` CLI startup model/effort by phase:
+Choose your startup model and `--effort` (`low | medium | high | xhigh | max`) by phase:
 
-| Phase | Recommended `agy` Model & Effort | Why |
+| Phase / Worker | Recommended Model & Effort | Why |
 |---|---|---|
-| **Kickoff, Literature Gate, Theory/Proofs, Protocol Freeze, Paper Writing** *(Start here!)* | **Gemini Pro** (highest available reasoning model) with `--effort high` | Best for reading full papers, proving the Archive-Blindness & Starvation theorems, catching protocol flaws, and drafting RLC / TNNLS prose. |
-| **Routine Implementation, Unit Tests, `hei-research` Recipes, Sweep Monitoring** | **Gemini Flash** (or default Medium model) with `--effort medium` | Faster and cheaper for mechanical coding, pytest fixes, plotting scripts, and checking Kaggle/Colab job status. |
-| **Worker — Claude Code (`claude`)** | **Claude Sonnet / Opus** (read-only) | Use **ONLY** at Gates 1, 2, and 3 (3–4 surgical calls total; respectful of shared account). |
-| **Worker — Codex CLI (`codex`)** | **Codex / GPT reasoning model** (read-only) | Tactical reserve ONLY (when quota allows) for hard proof checks or stubborn PyTorch/CUDA bugs. |
+| **Start `agy` CLI (Kickoff, Literature Gate, Theory/Proofs, Protocol Freeze, Paper Writing)** *(Start here!)* | **Gemini 4 Neon** with `agy --effort xhigh` (or `--effort high`) | Strongest Antigravity reasoning tier for reading full papers, proving the Archive-Blindness & Starvation theorems, catching protocol flaws, and drafting RLC 2027 / IEEE TNNLS prose. |
+| **Switch `agy` CLI (Routine Implementation, Unit Tests, `hei-research` Recipes, Sweep Monitoring)** | **Gemini 4 Neon** with `agy --effort medium` (or faster Gemini 4 tier) | Fast, cost-efficient for mechanical coding, pytest fixes, plotting scripts, and monitoring Kaggle/Colab jobs. |
+| **Worker — Claude Code (`claude`)** | **Claude Opus 5.5** (or **Claude Fable 5.2** for deepest audits; **Sonnet 5.5** for quick checks), read-only | Use **ONLY** at Gates 1, 2, and 3 (3–4 surgical calls total; respectful of shared account). |
+| **Worker — Codex CLI (`codex`)** | **GPT-6.2 Astra** (deep math/proof verification) or **GPT-6.2 Sol (`gpt-6.2-sol`)** (token-efficient PyTorch/CUDA debugging), read-only | Tactical reserve ONLY (check quota first). |
 
 Example startup command in Orca's coordinator terminal:
 ```bash
-agy --effort high
+agy --effort xhigh
 ```
-*(Or select your highest Gemini Pro reasoning model in Orca's agent model picker before pasting the kickoff prompt below.)*
+*(Select **Gemini 4 Neon** via `/model` or Orca's model picker if it is not already your default, then paste the kickoff prompt below.)*
 
 ---
 
@@ -32,12 +32,12 @@ First, complete your mandatory bootstrap:
 1. Read AGENTS.md and docs/research/Q1_RESEARCH_BLUEPRINT.md.
 2. Run `python3 scripts/research_harness.py doctor`, `status`, and `roadmap list`.
 3. Check live compute readiness via `$HOME/.local/bin/hei-research --json doctor` and `--json quota` (through WSL if running from a Windows terminal).
-4. Note that `graphify-out/graph.json` is available locally for fast codebase queries, and audited PPO baseline checkpoints are symlinked under `artifacts/`.
+4. Note that `graphify-out/graph.json` is available locally for fast codebase queries, audited PPO baseline checkpoints are symlinked under `artifacts/`, and `orca.yaml` shares both across worktrees.
 
 Acknowledge your multi-agent routing policy from AGENTS.md:
-- You (`agy`) own ~85-90% of work (planning, coding, theory drafts, `hei-research` sweeps, analysis, LaTeX).
-- Claude Code (`claude`) is reserved STRICTLY for our 3 surgical read-only Gatekeeper audits (Gate 1 Pre-Compute Protocol Audit, Gate 2 Post-Sweep Claim Audit, Gate 3 Reviewer-2 Kill-Argument) — do NOT invoke it for routine tasks.
-- Codex CLI (`codex`) is tactical reserve only (check quota first; use only for hard proof checks or stubborn CUDA/PyTorch bugs).
+- You (`agy`, Gemini 4 Neon) own ~85-90% of work (`--effort xhigh/high` for theory/planning/writing; `--effort medium` for routine coding/tests/sweeps).
+- Claude Code (`claude`, Opus 5.5 / Fable 5.2) is reserved STRICTLY for our 3 surgical read-only Gatekeeper audits (Gate 1 Pre-Compute Protocol Audit, Gate 2 Post-Sweep Claim Audit, Gate 3 Reviewer-2 Kill-Argument) — do NOT invoke it for routine tasks.
+- Codex CLI (`codex`, GPT-6.2 Astra / GPT-6.2 Sol) is tactical reserve only (check quota first; use only for hard proof/algebra checks or stubborn CUDA/PyTorch bugs).
 
 Once bootstrapped, present a crisp Week-1 execution plan covering ONLY our first 3 unblocking milestones:
 1. Full-text reading and registration of `arXiv:2605.10585` (Controllability) and `arXiv:2609.26918` (Preference Coverage Collapse) so we can lock the exact novelty boundary.
