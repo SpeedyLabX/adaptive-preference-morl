@@ -96,6 +96,22 @@
       "falsifier": "A prior matched-budget study of adaptive preference allocation under equivalent dynamics shifts, or locked-checkpoint evaluations showing no robust difference from controls.",
       "differentiating_experiment": "Evaluate locked checkpoints on nominal and predeclared OOD shifts without using OOD test results for tuning.",
       "allowed_wording": "Environment-shift robustness is a separate evaluation question from unseen-preference generalization."
+    },
+    {
+      "id": "simplex-face-exposure",
+      "title": "Fixed on-policy simplex-face exposure reduces deployed face-cap regret as objective dimension d grows without sacrificing interior utility",
+      "status": "hypothesis",
+      "confidence": "low",
+      "evidence": ["docs/research/Q1_RESEARCH_BLUEPRINT.md"],
+      "antecedents": ["delasheras2026controllability", "ambadkar2026d3po", "alegre2023gpi-prioritization"],
+      "closest_antecedent": "delasheras2026controllability",
+      "known": "Controllability work (arXiv:2605.10585) shows archive HV/EU can mask preference insensitivity; Preference Coverage Collapse (arXiv:2609.26918) isolates coverage loss from off-policy hindsight relabeling via APM and her_mix.",
+      "difference": "Tests whether simplex-boundary starvation scales with objective dimension d>=3 in an on-policy learner with faithful scalarization and no hindsight relabeling, and whether fixed face-balanced exposure reduces exact-oracle / deployed face-cap regret within a prespecified interior-utility margin.",
+      "novelty_verdict": "novelty_unresolved",
+      "novelty_confidence": "medium",
+      "falsifier": "Full-text reading of arXiv:2605.10585 and arXiv:2609.26918 showing they already establish on-policy face-exposure interventions, Week-1 pilot showing Spearman/APM already rank checkpoints identically (Spearman >= 0.9), or paired-seed evidence showing no face-cap regret reduction within the interior retention margin.",
+      "differentiating_experiment": "Week-1 STOP/PIVOT pilot on fruit-tree-v0 (d=6, exact oracle) and existing audited Minecart (d=3) checkpoints comparing Uniform vs Fixed Face-Balanced across Spearman, APM, and deployed face-cap regret before authorizing larger sweeps.",
+      "allowed_wording": "We test whether fixed on-policy simplex-face exposure reduces deployed face-cap regret for d>=3 without sacrificing interior utility; Week-1 STOP/PIVOT gate is pending."
     }
   ]
 }

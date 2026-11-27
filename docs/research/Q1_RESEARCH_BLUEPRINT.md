@@ -1,98 +1,72 @@
-# Q1 / Top-Conference Research Blueprint
+# Q1 / Top-Conference Research Blueprint (Week-1 Gated)
 
 **Repository:** `SpeedyLabX/adaptive-preference-morl`
-**Synthesized from:** 3-model adversarial review & debate (Antigravity + Claude Code + Codex CLI, 2026-11-27)
-**Status:** Strategy locked — pre-execution (requires full-text reading of `arXiv:2605.10585` and `arXiv:2609.26918` before freezing novelty claims)
+**Synthesized from:** 3-model adversarial debate + final GO/NO-GO audit (Antigravity + Claude Code + Codex CLI, 2026-11-27)
+**Status:** **GO for Week-1 Pilot & Literature Gate; NO-GO for large sweeps until Week-1 STOP/PIVOT gate passes**
 
 ---
 
 ## 1. Target Venues (2-Stage Publication Plan)
 
-1. **Stage 1 — Top Conference: RLC 2027** *(Reinforcement Learning Conference; stretch target: NeurIPS 2027)*
-   - Best venue fit for rigorous RL foundations, controlled mechanistic evaluation, and honest negative/static-control results.
-2. **Stage 2 — JCR Q1 Journal Extension: IEEE TNNLS** *(IEEE Transactions on Neural Networks and Learning Systems)*
-   - JCR Q1, publishes MORL theory + empirical evaluations, generous appendix space for full proofs, ablations, and retained PCQN negative studies.
+1. **Stage 1 — Top Conference: RLC 2027** *(Reinforcement Learning Conference; stretch: NeurIPS 2027)*
+2. **Stage 2 — JCR Q1 Journal Extension: IEEE TNNLS** *(JCR Q1, MORL theory + empirical work + generous appendices)*
 
 ---
 
-## 2. Core Publishable Thesis & Scientific Boundaries
+## 2. Core Publishable Thesis & Registered Claim (`simplex-face-exposure`)
 
-### Primary Causal Thesis (Stage 1)
-> **Simplex-Boundary Collapse in Preference-Conditioned MORL: Theory, Diagnosis, and On-Policy Exposure Fixes**
+### Primary Hypothesis (Stage 1)
+> **Does fixed on-policy simplex-face exposure reduce deployed face-cap regret as objective dimension $d \ge 3$ grows, while preserving interior utility?**
 
-- Hold the on-policy learner fixed (faithful raw-utility-preserving scalarization, no hindsight relabeling) and test causally whether **simplex-face exposure** reduces held-out **face-cap regret** while meeting a prespecified **interior-utility retention margin**.
-- Compare four matched-budget samplers:
-  1. **Uniform** (baseline Dirichlet / uniform pool)
-  2. **Fixed Face-Balanced** *(mandatory static control — if fixed coverage matches adaptive, publish the static-exposure result honestly)*
-  3. **Compute-Matched Random**
-  4. **Adaptive Face-Balanced**
+- Hold the on-policy learner fixed (faithful raw-utility-preserving scalarization, **no hindsight relabeling**) and test the primary contrast: **Uniform vs. Fixed Face-Balanced** exposure across $d \in \{3, 4, 6\}$.
+- **Staged expansion:** Expand to **Compute-Matched Random** and **Adaptive Face-Balanced** *only if* the Week-1 multi-seed pilot justifies it. Claim adaptive benefit only if Adaptive beats **both** Fixed Face-Balanced and Compute-Matched Random at matched budgets.
+- **Secondary 2×2 control (Minecart $d=3$):** Cross Uniform vs. Fixed Face-Balanced × uncompensated vs. raw-utility-preserving scalarization, plus the implied-preference `ŵ` diagnostic on **near-face mixed weights** (positive diagonal PopArt rescaling $\operatorname{diag}(\sigma)e_i \propto e_i$ leaves exact vertices invariant). If null, move to appendix.
 
-### Secondary Mechanistic Control (Clean 2×2 on Minecart)
-- Cross **Uniform vs. Fixed Face-Balanced** × **uncompensated vs. raw-utility-preserving scalarization** (keeping PopArt critic machinery and conditioning weights identical).
-- Add the **implied-preference `ŵ` diagnostic** comparing achieved return alignment `ŵ` against commanded `w` on **near-face mixed-weight bands**.
-  - *Algebraic note:* Positive diagonal rescaling $\operatorname{diag}(\sigma)e_i \propto e_i$ fixes exact simplex vertices; distortion acts on **near-face mixed weights**, not exact corners.
-- **Preregistered null rule:** If the normalization main effect and interaction are both null, move normalization distortion to the appendix.
+### Hard Week-1 STOP/PIVOT Gate (Runs BEFORE Any Large Sweep)
+1. **Full-text reading gate:** Read full text of **`arXiv:2605.10585`** (*Controllability*) and **`arXiv:2609.26918`** (*Preference Coverage Collapse*) and register both in `research/literature/`.
+2. **Metric & novelty overlap check:** Run a cheap, matched-budget, paired-seed pilot (Uniform vs. Fixed Face-Balanced, relabeling disabled) on **`fruit-tree-v0` ($d=6$, exact oracle)** plus score existing audited Minecart PPO checkpoints with **Spearman (`2605.10585`)**, **APM (`2609.26918`)**, and **deployed face-cap regret**.
+3. **Decision rule:**
+   - **STOP / PIVOT** if `2609.26918` already covers on-policy face exposure, if Spearman/APM already rank checkpoints nearly identically (Spearman $\gtrsim 0.9$), OR if Fixed Face-Balanced yields no meaningful cap-regret gain within the prespecified interior-utility retention margin.
+   - **GO to Stage-1 Sweep** only after freezing the protocol JSON (with exact numeric retention margin & seed count powered from the pilot) and passing **Gate 1**.
 
-### Claims Explicitly Killed / Scoped Out
-- **Kill:** 4-signal adaptive PCQN novelty claim (`research/claims.json` already classifies individual signals as incremental; PCQN failed Minecart — retain PCQN negative results in the appendix).
-- **Defer:** Dynamics-shift robustness (separate follow-up paper).
-- **Infrastructure only:** Research harness & Orca workflow are reproducibility tooling, not claimed algorithmic contributions.
-- **Mandatory pre-freeze reading gate & top-venue literature expansion:** Read full text of **`arXiv:2605.10585`** (*Controllability*) and **`arXiv:2609.26918`** (*Preference Coverage Collapse*) before freezing final novelty wording. Expand the current 28-paper course library to **45–60 grounded primary references** across 5 clusters (MORL foundations, 2025–2026 MORL frontier, RL curriculum/UED, PopArt & multi-task gradient conflict like PCGrad/CAGrad/Nash-MTL, and `rliable` statistical evaluation) to meet RLC / IEEE TNNLS citation standards.
+### Literature Expansion (Top-Venue Standard)
+- Expand the current 28-paper library to **45–60 grounded primary references** across 5 clusters: (1) MORL foundations, (2) 2025–2026 MORL frontier (`2605.10585`, `2609.26918`, D³PO, MORL-Generalization, MORL-FB, PBMORL, MPFT, C-MORL), (3) RL curriculum/UED, (4) PopArt & multi-task gradient conflict (PCGrad/CAGrad/Nash-MTL), and (5) `rliable` statistical evaluation.
 
 ---
 
-## 3. Theoretical Contributions (Owned by `@hei1sme`)
+## 3. Benchmarks ($d \ge 3$ Scaling Suite) & Budgeted Reference Compute
 
-1. **Archive-Metric Blindness Theorem (Finite MOMDP Construction):** Construct a finite MOMDP where two policies share identical attainable return sets (identical archive HV and EU), yet one conditioned policy incurs fixed $\Omega(\Delta)$ deployed regret on an $\epsilon$-vertex cap.
-2. **Simplex-Boundary Starvation & Query Detection Bound:** Show that under uniform Dirichlet sampling on $\Delta^{d-1}$, probability mass inside an $\epsilon$-cap scales as $O(\epsilon^{d-1})$, derive matched preference-query detection sample bounds, and verify predictions against an exact discounted oracle (`deep-sea-treasure-v0`, and `fruit-tree-v0` $d=6$ in Stage 2).
-
----
-
-## 4. Experiment Matrix & Verified Compute Budget
-
-### Verified Compute (`hei-research`, 2026-11-27)
-- **Local:** NVIDIA RTX 4060 Laptop GPU (`8 GB VRAM`) — pilots & fast CPU/GPU dev
-- **Kaggle:** `45 GPU-hours/week` + `20 TPU-hours/week` — primary sweep engine
-- **Colab:** `~189 compute units/month` (40 reserve) — overflow
-
-### Stage 1 Conference Matrix (`144` Main Runs)
-- **4 MO-Gymnasium Benchmarks:**
-  1. `deep-sea-treasure-v0` (exact discounted oracle — theory verification)
-  2. `minecart-v0` (3D discrete, sparse delayed credit)
-  3. `mo-lunar-lander-v3` (4D discrete — trained across the **full simplex**, fixing the prior single-preference specialist caveat)
-  4. `mo-halfcheetah-v5` (continuous control transfer)
-- **Runs:**
-  - `4 envs × 4 samplers × 8 paired training seeds` = **`128` runs**
-  - `+ 16` uncompensated-scalarization Minecart runs (completing the 2×2) = **`144` main runs**
-- **Throughput Gate (Week 1):** Timed end-to-end pilots must project ≤ `2 GPU-hours/run` (≤ `288 GPU-hours` total ≈ 6–8 weeks of Kaggle + RTX 4060 + Colab).
-- **Evaluation Protocol:**
-  - Treat the historical 55-case diagnosis as **exploratory only**.
-  - Freeze fresh **vertex, near-face, and interior** preference strata, equal tuning budgets, and MO-Gymnasium default HV reference points before sweeps.
-  - Report **deployed face-cap regret** (exact oracle on DST; independent reference policies elsewhere), **HV**, **EU**, **Spearman controllability**, **`ŵ` gap**, and **task success separately** — using **IQM + stratified-bootstrap CIs (`rliable`)** with training seeds as inferential units.
-
-### Stage 2 Journal Extension (IEEE TNNLS)
-- Add 6-objective `fruit-tree-v0` ($d=6$ scaling law test) and `mo-hopper-2obj-v5`.
-- Add full near-face normalization-distortion theory and replicate the winning exposure intervention on external baselines (**D³PO**, **CAPQL**, **GPI-LS / Envelope**).
+- **Why $d \ge 3$:** At $d=2$, $\epsilon$-cap volume is linear ($O(\epsilon)$), so $d=2$ cannot test exponential $O(\epsilon^{d-1})$ boundary starvation.
+- **Core Stage-1 Suite:**
+  1. `fruit-tree-v0` ($d=6$, fast CPU, **exact discounted oracle** — tests strong $\epsilon^5$ starvation)
+  2. `minecart-v0` ($d=3$, sparse delayed credit)
+  3. `mo-lunar-lander-v3` ($d=4$, trained across the **full simplex**)
+  4. *Sanity check only:* `deep-sea-treasure-v0` ($d=2$, exact oracle)
+- **Reference-Policy Compute (Explicitly Budgeted — No Hidden Cost):**
+  - On `fruit-tree-v0` and `deep-sea-treasure-v0`: **exact discounted oracle** (`0` extra training runs).
+  - On `minecart-v0` ($d=3$) and `mo-lunar-lander-v3` ($d=4$): primary comparison is **direct paired deployed scalarized utility** across arms; optional vertex-specialist anchors are explicitly budgeted at `7` vertices × `3` seeds = **`21` runs** (owned by `@hei1sme` via `hei-research`).
+- **Paired-Seed Power & Hardware Consistency:**
+  - Use **10–12 paired training seeds** on the primary Uniform vs. Fixed Face-Balanced contrast (sized from the Week-1 multi-seed pilot) rather than spreading thin across 4 arms prematurely.
+  - Keep every paired-seed contrast on **matched hardware/software** (do not mix heterogeneous teammate Kaggle hardware inside a single paired contrast).
+- **Stage 2 (IEEE TNNLS Extension):** Add `mo-hopper-v5` ($d=3$ continuous control), full near-face normalization-distortion analysis, and external baseline replication (**D³PO**, **CAPQL**, **GPI-LS / Envelope**).
 
 ---
 
-## 5. Multi-Model Agent Allocation (Inside Orca)
+## 4. Multi-Agent Quota-Smart Allocation (Inside Orca)
 
-- **Antigravity (`agy` CLI) — ~85–90% (Main Coordinator + Builder + Writer):** Day-to-day planning, coding, `hei-research` recipes, analysis, figures, and LaTeX drafting.
-- **Claude Code — ~5–10% (Surgical Gatekeeper — 3–4 calls total):** Respectful use on friend's account, reserved strictly for:
-  1. Gate 1: Pre-compute frozen protocol & novelty audit (after reading `2605.10585` & `2609.26918`).
-  2. Gate 2: Post-sweep claim & integrity audit against raw JSONs.
-  3. Gate 3: Final Reviewer-2 "kill-argument" defense on the LaTeX draft.
-- **Codex CLI — ~0–5% (Tactical Reserve):** Hard mathematical proof verification or stubborn PyTorch/CUDA debugging when quota permits.
+- **Antigravity (`agy` CLI) — ~85–90%:** Default **`gemini-4-neon-medium`** (`agy --model gemini-4-neon-medium`); escalate via `/model` to `high` only for isolated proof/protocol/writing turns (`xhigh` only if stuck).
+- **Claude Code (`claude`) — Fixed at Claude Opus 5.5 (3 short read-only calls total):**
+  1. Gate 1 (Pre-Sweep Protocol Audit) — *Human fallback:* if the courtesy account is unavailable, `@hei1sme` + `@Am2uocVi3t` complete the Gate-1 checklist manually using `CLAUDE.md` criteria.
+  2. Gate 2 (Post-Sweep Claim & Integrity Audit).
+  3. Gate 3 (Pre-Submission Reviewer-2 Kill-Argument).
+- **Codex CLI (`codex`) — Tactical Reserve (`gpt-6.2-sol`, read-only):** Check quota first; use only for stubborn PyTorch/CUDA bugs or targeted algebra checks.
 
 ---
 
-## 6. Realistic Team Task Split (`SpeedyLabX`)
+## 5. Team Task Split (`SpeedyLabX`)
 
-Since Orca, `hei-research`, and the primary GPU/Kaggle/Colab accounts live on `@hei1sme`'s machine, team tasks are split so teammates contribute **high-value PRs and analyses without needing shared credentials**:
-
-| Member | Core Role | Concrete Deliverables (PR-based, No Shared Credentials Needed) |
+| Member | Core Role | Concrete Deliverables (No Shared Credentials Needed) |
 |---|---|---|
-| **`@hei1sme`** (Lead / First Author) | Theory, Orca + `hei-research` compute orchestration, Claude Gatekeeper audits, paper lead | 1. Finite-MOMDP Archive-Blindness proof + starvation/query bounds.<br>2. Run & monitor the 144-run `hei-research` matrix (Local + Kaggle + Colab).<br>3. Lead paper writing & final submission. |
-| **`@Am2uocVi3t`** | Environment wrappers, external baselines & code PRs | 1. PR adding `deep-sea-treasure-v0` (with exact discounted oracle) + `mo-halfcheetah-v5` + full-simplex Lunar PPO config (CPU unit-tested).<br>2. Port/verify external baselines (`D³PO`, `GPI-LS`, `CAPQL`) for Stage 2.<br>3. *(Optional)* Run assigned seed slice on own free Kaggle account and PR back compact `result.json`. |
-| **`@justHman`** | Literature matrix, evaluation/stats pipeline & figures | 1. Full-text synthesis & comparison table for `arXiv:2605.10585`, `arXiv:2609.26918`, D³PO, CAPQL, GPI-LS, PBMORL, MPFT.<br>2. PR for frozen vertex/near-face/interior splits, corner-cap regret, `ŵ` diagnostic, and `rliable` IQM/CI plotting scripts.<br>3. Publication figures, LaTeX tables & *(optional)* independent Kaggle seed slice. |
+| **`@hei1sme`** (Lead / First Author) | Theory, Orca + `hei-research` compute (RTX 4060 / Kaggle / Colab), Gate audits, paper lead | 1. Week-1 full-text gate (`2605.10585` & `2609.26918`) + `fruit-tree-v0` pilot.<br>2. Theory proofs (Archive Blindness + $d$-scaling starvation/query bounds).<br>3. Run matched-hardware paired sweeps & budgeted vertex anchors. |
+| **`@Am2uocVi3t`** | Environment wrappers, oracle & baselines (PR-based) | 1. PR adding `fruit-tree-v0` ($d=6$) & `deep-sea-treasure-v0` exact discounted oracles + full-simplex Lunar PPO config (CPU unit-tested).<br>2. Stage-2 external baselines (`D³PO`, `GPI-LS`, `CAPQL`) + `mo-hopper-v5` ($d=3$). |
+| **`@justHman`** | Literature expansion, evaluation metrics & figures (PR-based) | 1. Expand literature to 45–60 grounded references + closest-prior-work table.<br>2. PR for fresh vertex/near-face/interior splits, APM + Spearman + deployed cap-regret + `ŵ` diagnostic + `rliable` IQM/CI plots. |
