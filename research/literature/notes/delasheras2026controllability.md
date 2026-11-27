@@ -30,6 +30,7 @@ The unconditioned methods sometimes equal or beat MOPPO on mainstream front metr
 ## Relationship to project claims
 
 - `combined-allocation`: a claimed allocation benefit should include preference-to-outcome controllability, not only front quality.
+- `simplex-face-exposure`: closest registered antecedent for preference-compliance evaluation. Its per-objective Spearman rank correlation captures monotonic association across simplex weights, whereas `simplex-face-exposure` tests whether deployed face-cap regret (exact-oracle / deployed scalarized utility near simplex faces as $d \ge 3$ grows) adds distinct checkpoint-ranking signal (Week-1 gate requires Spearman $< 0.9$ between Spearman/APM and deployed face-cap regret rankings) and whether fixed on-policy face exposure reduces that regret without sacrificing interior utility. The paper does not propose a training preference-exposure intervention.
 - The paper does not allocate training across preferences and is not an antecedent for the four curriculum signals.
 - The repository already lists controllability/ordering as a secondary metric; this paper supplies a newer and more explicit per-objective operationalization that should be considered at protocol freeze.
 

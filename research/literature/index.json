@@ -570,11 +570,12 @@
         "evaluation"
       ],
       "claim_ids": [
-        "combined-allocation"
+        "combined-allocation",
+        "simplex-face-exposure"
       ],
       "note": "research/literature/notes/delasheras2026controllability.md",
       "added_at": "2026-10-15T04:03:52+00:00",
-      "updated_at": "2026-10-15T04:07:58+00:00"
+      "updated_at": "2026-11-27T13:15:00+00:00"
     },
     {
       "id": "hu2026predictable-preferences",
@@ -864,6 +865,39 @@
       "note": "research/literature/notes/agarwal2021evaluation.md",
       "added_at": "2026-11-03T14:02:31+00:00",
       "updated_at": "2026-11-03T14:02:31+00:00"
+    },
+    {
+      "id": "bonin2026coverage-collapse",
+      "title": "On Preference Coverage Collapse from Hindsight Relabeling in Multi-Objective Reinforcement Learning",
+      "authors": [
+        "Baptiste Bonin",
+        "Caro Strickland",
+        "Audrey Durand"
+      ],
+      "year": 2026,
+      "venue": "arXiv 2026",
+      "source_type": "preprint",
+      "status": "read",
+      "access_status": "open_full_text",
+      "evidence_level": "full_text",
+      "full_text_required": false,
+      "access_note": "Full 11-page arXiv v1 PDF (arXiv:2609.26918v1, 22 Sep 2026; main pp. 1-8 + Appendices A-E pp. 9-11) read in full on 2026-11-27 from local Git-ignored research/literature/pdfs/bonin2026coverage-collapse.pdf (SHA-256: 867ba725d303a10a6a336de288054bb47cb7beb3a96e176d68216d95e6104e23); publication status retained as preprint.",
+      "access_checked_at": "2026-11-27T13:38:00+00:00",
+      "url": "https://arxiv.org/abs/2609.26918",
+      "tags": [
+        "morl",
+        "preference-conditioned",
+        "pareto-coverage",
+        "replay",
+        "evaluation"
+      ],
+      "claim_ids": [
+        "simplex-face-exposure",
+        "combined-allocation"
+      ],
+      "note": "research/literature/notes/bonin2026coverage-collapse.md",
+      "added_at": "2026-11-27T13:15:00+00:00",
+      "updated_at": "2026-11-27T13:38:00+00:00"
     }
   ]
 }

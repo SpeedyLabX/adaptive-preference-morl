@@ -103,7 +103,7 @@
       "status": "hypothesis",
       "confidence": "low",
       "evidence": ["docs/research/Q1_RESEARCH_BLUEPRINT.md"],
-      "antecedents": ["delasheras2026controllability", "ambadkar2026d3po", "alegre2023gpi-prioritization"],
+      "antecedents": ["delasheras2026controllability", "bonin2026coverage-collapse", "ambadkar2026d3po", "alegre2023gpi-prioritization"],
       "closest_antecedent": "delasheras2026controllability",
       "known": "Controllability work (arXiv:2605.10585) shows archive HV/EU can mask preference insensitivity; Preference Coverage Collapse (arXiv:2609.26918) isolates coverage loss from off-policy hindsight relabeling via APM and her_mix.",
       "difference": "Tests whether simplex-boundary starvation scales with objective dimension d>=3 in an on-policy learner with faithful scalarization and no hindsight relabeling, and whether fixed face-balanced exposure reduces exact-oracle / deployed face-cap regret within a prespecified interior-utility margin.",
