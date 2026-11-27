@@ -14,8 +14,8 @@ def _sha256(path: str | Path) -> str:
 def test_stage1_protocol_schema_locks_and_gate1_fixes():
     protocol = json.loads(PROTOCOL_PATH.read_text(encoding="utf-8"))
     assert protocol["protocol_id"] == "stage1-simplex-face-exposure-v1"
-    assert protocol["status"] == "frozen_pending_gate1b_reverification"
-    assert protocol["execution_authorized"] is False
+    assert protocol["status"] == "frozen_gate1b_passed_authorized"
+    assert protocol["execution_authorized"] is True
     assert protocol["gate1_signoff_required"] is True
     assert protocol["learner_contract"]["hindsight_relabeling"] is False
 
@@ -38,13 +38,20 @@ def test_stage1_protocol_schema_locks_and_gate1_fixes():
     )
     assert Path(prereq["throughput_qualification"]["receipt"]).is_file()
     assert Path(prereq["gate1_audit_receipt"]).is_file()
+    assert Path(prereq["gate1b_reverification_receipt"]).is_file()
+    assert prereq["gate1b_verdict"] == "PASS"
 
     # Fix 1: Strict retention criterion (no OR clause) + reference-shifted positive denominator.
     margin = protocol["metrics_and_analysis"]["interior_utility_retention_margin"]
-    assert margin["minimum_retention_ratio"] == 0.985
+    assert margin["informational_equivalent_ratio"] == 0.985
     assert margin["maximum_relative_degradation"] == 0.015
     assert " OR " not in margin["sole_criterion"]
     assert margin["denominator_normalization"] == "reference_shifted_positive_utility_U_minus_wTr_ref"
+
+    # Gate-1B (a): Frozen d-scaling OLS slope test statistic.
+    d_stat = protocol["fruit_tree_d_subset_scaling_sweep"]["d_scaling_test_statistic"]
+    assert "OLS slope beta_d" in d_stat["test_statistic"]
+    assert "beta_d > 0" in d_stat["hypothesis_test"]
 
     # Fix 2: Single primary endpoint per benchmark (exact vertices excluded) and Holm k=3.
     endpoint = protocol["metrics_and_analysis"]["single_primary_endpoint_per_benchmark"]
@@ -114,7 +121,8 @@ def test_stage1_protocol_benchmarks_d_subsets_seeds_disjoint_and_budgets_verifie
             assert not (anchor_seeds & all_train_seeds)
             all_train_seeds.update(anchor_seeds)
 
-        assert b["verified_max_gpu_hours_per_run"] <= 2.0
+        max_hours = b.get("verified_max_gpu_hours_per_run", b.get("verified_max_hours_per_run"))
+        assert max_hours is not None and max_hours <= 2.0
         comp = b["evaluation_splits"]["primary_non_vertex_face_cap_composition"]
         assert comp["exact_vertices_excluded"] is True
         dev_seed = b["evaluation_splits"]["development_seed"]

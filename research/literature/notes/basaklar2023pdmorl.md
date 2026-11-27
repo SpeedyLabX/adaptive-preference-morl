@@ -20,7 +20,7 @@ OpenReview full text checked on 2026-10-15; re-verified in full on 2026-11-27 fr
 
 ## Evidence and relationship to claims
 
-- **`simplex-face-exposure` (key corner-preference antecedent):** Closest prior work using explicit simplex corner preferences during training. Critically distinct from our Stage-1 intervention on four axes:
+- **`simplex-face-exposure` (key corner-preference antecedent):** Closest prior work using explicit simplex corner preferences during training. Critically distinct from our Stage-1 intervention on three axes:
   1. PD-MORL uses corners only to fit an auxiliary RBF alignment interpolator (either from oracle discrete fronts or separate specialist pre-training runs), whereas `simplex-face-exposure` tests a **single-stage, zero-oracle, static face-balanced preference sampler** across vertices and proper sparse faces ($s \in \{2, \dots, d-1\}$) inside one shared **on-policy** learner with **no hindsight relabeling**.
   2. PD-MORL relies heavily on off-policy HER relabeling ($N_\omega=3$) and $C_p=10$ parallel sub-space collectors; it does not isolate on-policy simplex-face exposure vs. uniform or static $\mathrm{Dirichlet}(\alpha < 1)$ sparse priors at matched budgets.
   3. Continuous control experiments in PD-MORL are strictly $L=2$; FTN ($d=6$) is evaluated only via front-level Hypervolume and CRF1 (Tables 1 & 7), never deployed face-cap regret excluding exact vertices.

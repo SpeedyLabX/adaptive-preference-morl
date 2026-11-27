@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "protocol_id": "stage1-simplex-face-exposure-v1",
-  "protocol_revision": "v1.1-gate1-fixes",
-  "status": "frozen_pending_gate1b_reverification",
-  "execution_authorized": false,
+  "protocol_revision": "v1.2-gate1b-passed-authorized",
+  "status": "frozen_gate1b_passed_authorized",
+  "execution_authorized": true,
   "gate1_signoff_required": true,
   "target_venues": {
     "stage1_conference": "RLC 2027 (stretch: NeurIPS 2027)",
@@ -61,7 +61,8 @@
       "evidence_sha256": "2bb5dee961146ca5b74412f35893dead79abd627b634214eb606e7152db90ccd",
       "pilot_seeds": [20268001, 20268002, 20268003, 20268004, 20268005, 20268006, 20268007, 20268008, 20268009, 20268010],
       "summary_argmax_n10": {
-        "face_cap_regret_relative_reduction": 0.5632,
+        "non_vertex_face_cap_regret_relative_reduction": 0.5575,
+        "face_cap_incl_vertices_regret_relative_reduction": 0.5632,
         "face_cap_regret_dz": -1.593,
         "face_cap_regret_holm_p": 0.0195,
         "interior_utility_retention_ratio": 1.004,
@@ -76,7 +77,9 @@
       "hei_run_id": "EXP-810E47201598",
       "max_gpu_hours_ceiling": 2.0
     },
-    "gate1_audit_receipt": "research/qualification/gate1_stage1_protocol_audit_v1.md"
+    "gate1_audit_receipt": "research/qualification/gate1_stage1_protocol_audit_v1.md",
+    "gate1b_reverification_receipt": "research/qualification/gate1b_stage1_protocol_reverification_v1.md",
+    "gate1b_verdict": "PASS"
   },
   "learner_contract": {
     "algorithm": "SimplexPPO",
@@ -182,7 +185,7 @@
       "fragment_steps": 48,
       "width": 128,
       "gae_lambda": 1.0,
-      "verified_max_gpu_hours_per_run": 0.0134,
+      "verified_max_hours_per_run": 0.0134,
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269151,
@@ -303,7 +306,7 @@
       "fragment_steps": 48,
       "width": 128,
       "gae_lambda": 1.0,
-      "verified_max_gpu_hours_per_run": 0.02,
+      "verified_max_hours_per_run": 0.02,
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269451,
@@ -325,8 +328,16 @@
     "oracle_module": "src/envs/fruit_tree_oracle.py",
     "arms_included": ["uniform", "dirichlet_sparse", "fixed_face_balanced"],
     "training_interactions": 153600,
-    "verified_max_gpu_hours_per_run": 0.0134,
+    "verified_max_hours_per_run": 0.0134,
     "device": "cpu",
+    "d_scaling_test_statistic": {
+      "primary_endpoint_per_seed": "relative_non_vertex_regret_reduction(d, s) = (R_unif(d, s) - R_fb(d, s)) / max(1e-12, R_unif(d, s)) in argmax mode",
+      "secondary_endpoint_per_seed": "absolute_non_vertex_regret_reduction(d, s) = R_unif(d, s) - R_fb(d, s)",
+      "test_statistic": "OLS slope beta_d of paired seed-level relative_non_vertex_regret_reduction(d, s) regressed on d in {3, 4, 5, 6}",
+      "confidence_interval": "95% stratified seed-bootstrap CI (10000 resamples within each d)",
+      "hypothesis_test": "One-sided permutation test (10000 permutations of d labels across paired seeds) testing H1: beta_d > 0 at alpha = 0.05",
+      "sparse_prior_comparison": "Also compute OLS slope beta_d for fixed_face_balanced vs dirichlet_sparse(alpha=0.25) and report prominently regardless of significance."
+    },
     "subsets": [
       {
         "reward_dim": 3,
@@ -398,7 +409,7 @@
     "apm_sign_guard_and_archive_blindness_policy": "Always report magnitude-guarded APM (U_F < U_F0 - tau * |U_F0|) as primary APM and reference-shifted APM as secondary; never report raw unguarded Eq. 2 on negative-utility benchmarks without flagging self-abandonment. Explicitly disclose in the paper that front-based APM inherits Archive Blindness by construction.",
     "edge_cap_sampling_disclosure": "sample_edge_cap_preferences samples a truncated mid-edge band (on-edge split in [0.15, 0.85], omitting the (1-m) Jacobian) inside {w_i + w_j >= 1 - epsilon}; describe accurately in the paper rather than claiming exact Lebesgue uniformity on the full edge cap.",
     "interior_utility_retention_margin": {
-      "minimum_retention_ratio": 0.985,
+      "informational_equivalent_ratio": 0.985,
       "maximum_relative_degradation": 0.015,
       "sole_criterion": "Lower bound of 95% paired bootstrap CI on relative reference-shifted interior-uniform utility change (U_tilde_FB - U_tilde_Unif) / U_tilde_Unif >= -0.015, where U_tilde(w) = w^T (g(w) - r_ref) > 0 uses each benchmark's frozen reference_point. Strictly required with no point-estimate fallback.",
       "denominator_normalization": "reference_shifted_positive_utility_U_minus_wTr_ref",
@@ -433,7 +444,7 @@
       "lunar_20_runs": 19.1,
       "vertex_anchors_21_runs": 28.2,
       "total_gpu_hours": 103.2,
-      "estimated_cpu_hours_fruit_tree_and_dst": 1.8,
+      "estimated_cpu_hours_fruit_tree_and_dst": 2.09,
       "max_gpu_hours_per_run_verified": 1.8639
     }
   }
