@@ -62,8 +62,8 @@ def main() -> None:
     arm_count = 0
     for env_id in ("minecart-v0", "mo-lunar-lander-v3"):
         b = benchmarks[env_id]
-        est_s = 6700 if env_id == "minecart-v0" else 3500
-        max_s = 9000 if env_id == "minecart-v0" else 5400
+        est_s = 6700 if env_id == "minecart-v0" else 4900
+        max_s = 14400 if env_id == "minecart-v0" else 7200
         short_env = "minecart" if env_id == "minecart-v0" else "lunar"
 
         # 21 Vertex-specialist anchor recipes (9 Minecart standalone Kaggle/local + 12 Lunar local)
