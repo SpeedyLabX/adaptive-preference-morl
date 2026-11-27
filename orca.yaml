@@ -1,0 +1,7 @@
+# Orca workspace configuration for SpeedyLabX/adaptive-preference-morl
+# Symlinks large local-only directories across isolated git worktrees so
+# parallel agent branches start instantly without duplicating checkpoints or graph caches.
+
+symlinks:
+  - artifacts
+  - graphify-out
