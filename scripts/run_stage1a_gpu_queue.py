@@ -78,13 +78,16 @@ def _run_hei_recipe(recipe: Path, backend: str, allow_remote: bool, wait_timeout
         raise RuntimeError(f"hei-research run failed for {recipe.name}: {proc.stderr.strip() or proc.stdout.strip()}")
     payload = json.loads(proc.stdout.strip().splitlines()[-1])
     run_id = payload.get("id") or payload.get("run_id")
-    status = str(payload.get("status", "")).lower()
+    status = str(payload.get("state") or payload.get("status") or "").lower()
     if run_id and status not in {"completed", "succeeded", "done", "ok"}:
         wait_cmd = [str(HEI_BIN), "--json", "wait", "--timeout", str(wait_timeout), str(run_id)]
         wproc = subprocess.run(wait_cmd, cwd=REPO_ROOT, capture_output=True, text=True, check=False)  # nosec B603
         if wproc.returncode != 0:
             raise RuntimeError(f"hei-research wait failed for {run_id}: {wproc.stderr.strip() or wproc.stdout.strip()}")
         payload = json.loads(wproc.stdout.strip().splitlines()[-1])
+        final_state = str(payload.get("state") or payload.get("status") or "").lower()
+        if final_state not in {"completed", "succeeded", "done", "ok"}:
+            raise RuntimeError(f"hei-research run {run_id} ended in non-completed state: {payload}")
     return payload
 
 
