@@ -54,12 +54,11 @@
 
 ## 4. Multi-Agent Quota-Smart Allocation (Inside Orca)
 
-- **Antigravity (`agy` CLI) — ~85–90%:** Default **`gemini-4-neon-medium`** (`agy --model gemini-4-neon-medium`); escalate via `/model` to `high` only for isolated proof/protocol/writing turns (`xhigh` only if stuck).
-- **Claude Code (`claude`) — Fixed at Claude Opus 5.5 (3 short read-only calls total):**
-  1. Gate 1 (Pre-Sweep Protocol Audit) — *Human fallback:* if the courtesy account is unavailable, `@hei1sme` + `@Am2uocVi3t` complete the Gate-1 checklist manually using `CLAUDE.md` criteria.
-  2. Gate 2 (Post-Sweep Claim & Integrity Audit).
-  3. Gate 3 (Pre-Submission Reviewer-2 Kill-Argument).
-- **Codex CLI (`codex`) — Tactical Reserve (`gpt-6.2-sol`, read-only):** Check quota first; use only for stubborn PyTorch/CUDA bugs or targeted algebra checks.
+- **Antigravity (`agy` CLI) — ~65–75%:** Default **`gemini-4-neon-medium`** (`agy --model gemini-4-neon-medium`); escalate via `/model` to `high` for hard proof/protocol/writing turns (`xhigh` only if stuck).
+- **Claude Code (`claude`) — Fixed at Claude Opus 5.5 (~20–30% share, read-only default except delegated LaTeX edits):**
+  1. **3 Irreversible Scientific Gates:** Gate 1 (Pre-Sweep Protocol, Novelty & Code Audit), Gate 2 (Post-Sweep Claim & Integrity Audit), Gate 3 (Pre-Submission Reviewer-2 Kill-Argument). *Human fallback:* if unavailable, `@hei1sme` + `@Am2uocVi3t` complete Gate 1 manually using `CLAUDE.md` criteria.
+  2. **Ongoing scientific work:** Scientific code review (metrics/oracles/PPO), theory proof checks, and LaTeX drafting/polishing (keep prompts targeted to 2–6 explicit files).
+- **Codex CLI (`codex`) — Tactical Reserve (`gpt-6.2-sol`, ~0–5%, read-only):** Check quota first; use only for stubborn PyTorch/CUDA bugs or targeted algebraic/proof cross-checks.
 
 ---
 

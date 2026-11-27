@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "stage1_throughput_qualification",
+  "study_id": "stage1-simplex-face-exposure-v1",
+  "engineering_only": true,
+  "final_test_steps": 0,
+  "ceiling_gpu_hours_per_run": 2.0,
+  "all_benchmarks_under_ceiling": true,
+  "live_hei_research_probe": {
+    "hei_run_id": "EXP-810E47201598",
+    "fingerprint": "12b4e626acefd4b88c2152250fa259bf1422e819069fb677ad7f2e3e7cb5ffc7",
+    "backend": "local",
+    "conda_env": "morl-py311",
+    "hardware": "NVIDIA GeForce RTX 4060 Laptop GPU (8188 MiB)",
+    "recipe": "configs/recipes/stage1_throughput_probe.toml",
+    "script": "scripts/probe_stage1_throughput_hei.py",
+    "probe_interactions_per_env": 16384,
+    "wall_seconds_total": 51.6,
+    "benchmarks": {
+      "minecart-v0": {
+        "reward_dim": 3,
+        "train_sps": 604.4,
+        "target_interactions": 4000000,
+        "projected_4m_gpu_hours": 1.8639,
+        "projected_2m_gpu_hours": 0.9448,
+        "under_2_gpu_hours_ceiling": true
+      },
+      "mo-lunar-lander-v3": {
+        "reward_dim": 4,
+        "mode": "full_simplex",
+        "train_sps": 1219.7,
+        "target_interactions": 4000000,
+        "projected_4m_gpu_hours": 0.9536,
+        "under_2_gpu_hours_ceiling": true
+      }
+    }
+  },
+  "historical_audited_4m_rtx4060_logs": {
+    "minecart_S_solo_4M_wall_hours": 1.33,
+    "minecart_C_solo_4M_wall_hours": 2.051,
+    "minecart_G_3x_concurrent_4M_wall_hours": [2.744, 2.731, 2.734],
+    "minecart_G_3x_gpu_hours_per_run": 0.912,
+    "lunar_L_solo_4M_wall_hours": 1.168,
+    "lunar_LG_2x_concurrent_4M_wall_hours": [1.321, 1.308],
+    "lunar_LG_2x_gpu_hours_per_run": 0.657,
+    "note": "Historical Windows RTX 4060 logs confirm 4M Lunar runs take ~1.17h solo (0.66 GPU-h/run at 2x concurrency) and 4M Minecart runs take ~1.33-2.05h solo on Windows vs 1.864h projected solo on WSL Linux CUDA."
+  },
+  "cpu_exact_oracle_timings": {
+    "fruit-tree-v0": {
+      "evidence": "research/evidence/week1_fruit_tree_pilot_v1.json",
+      "training_interactions": 153600,
+      "mean_seconds_per_run": 42.064,
+      "max_seconds_per_run": 48.281,
+      "max_hours_per_run": 0.013411,
+      "under_2_gpu_hours_ceiling": true
+    },
+    "deep-sea-treasure-v0": {
+      "role": "d=2 sanity check only",
+      "estimated_max_hours_per_run": 0.02,
+      "under_2_gpu_hours_ceiling": true
+    }
+  },
+  "compute_quota_snapshot_20261127": {
+    "local_gpu": "NVIDIA GeForce RTX 4060 Laptop GPU (7864 MiB free, 0% util)",
+    "kaggle_gpu_remaining_hours": 39.63,
+    "kaggle_gpu_total_hours": 45.0,
+    "colab_usable_units": 148.95,
+    "colab_reserve_units": 40.0
+  }
+}

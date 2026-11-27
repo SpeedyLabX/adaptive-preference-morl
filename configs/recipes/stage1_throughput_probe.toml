@@ -1,0 +1,25 @@
+[experiment]
+name = "stage1-throughput-probe-v1"
+script = "../../scripts/probe_stage1_throughput_hei.py"
+seed = 20269901
+device = "cuda"
+min_vram_mib = 512
+estimated_seconds = 120
+max_seconds = 600
+dataset = "minecart-v0_and_mo-lunar-lander-v3_full-simplex"
+dataset_mib = 0
+compatibility = "simplex-ppo-throughput-v1"
+data_class = "synthetic"
+epochs = 1
+
+[local]
+conda_env = "morl-py311"
+
+[colab]
+gpu = "T4"
+units_per_hour = 10.0
+max_units = 2.0
+
+[kaggle]
+accelerator = "NvidiaTeslaT4"
+dataset_sources = []
