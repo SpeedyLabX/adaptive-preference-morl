@@ -1,0 +1,25 @@
+[experiment]
+name = "stage1a-minecart-fixed-face-balanced-s20269203"
+script = "../../../../../scripts/run_stage1a_gpu_job.py"
+seed = 20269203
+device = "cuda"
+min_vram_mib = 512
+estimated_seconds = 6700
+max_seconds = 9000
+dataset = "minecart-v0|arm|fixed_face_balanced"
+dataset_mib = 0
+compatibility = "stage1a-simplex-ppo-v1"
+data_class = "synthetic"
+epochs = 1
+
+[local]
+conda_env = "morl-py311"
+
+[colab]
+gpu = "T4"
+units_per_hour = 2.0
+max_units = 6.0
+
+[kaggle]
+accelerator = "NvidiaTeslaT4"
+dataset_sources = []
