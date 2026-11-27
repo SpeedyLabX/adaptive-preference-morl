@@ -1,11 +1,14 @@
-"""Simplex face-cap evaluation metrics, APM (sign-guarded), and static face-balanced sampling.
+"""Simplex face-cap evaluation metrics, APM (sign-guarded), and static preference samplers.
 
 Implements:
 - Effective Coverage C and Abandoned Preference Mass (APM) from Bonin et al. (2026, arXiv:2609.26918),
   with explicit sign guards for benchmarks whose scalarized utility can be negative.
-- Deployed scalarized regret vs. archive/front utility (exposing archive blindness).
-- Exact simplex vertex/edge epsilon-cap split generators and static Fixed Face-Balanced sampler.
-- Pairwise Spearman/Kendall checkpoint-ranking correlation checks for Week-1 metric differentiation.
+- Deployed scalarized regret (both clamped and unclamped signed gap + fraction_clipped) vs. archive/front
+  utility (exposing Archive Blindness).
+- Reference-shifted positive-utility interior retention helper (stable when raw utility can be <= 0).
+- Exact simplex vertex epsilon-cap sampler, truncated mid-edge band sampler, and static
+  Uniform / Dirichlet-sparse (alpha < 1) / Fixed Face-Balanced preference samplers.
+- Pairwise Spearman/Kendall checkpoint-ranking correlation checks.
 """
 
 from __future__ import annotations
@@ -59,6 +62,11 @@ def compute_abandoned_preference_mass(
     zero_tol: float = 1e-12,
 ) -> dict[str, Any]:
     """Compute Abandoned Preference Mass (Bonin et al., 2026, Eq. 2) with negative-utility sign guards.
+
+    Note on Archive Blindness:
+    APM evaluates U_F(w) = max_{p in F} w^T p over the Pareto-pruned realized return cloud F rather than
+    the deployed single-query return g_pi(w). Consequently, APM inherits Archive Blindness by construction
+    (a mis-conditioned policy whose return cloud happens to span F can achieve APM = 0).
 
     Raw Bonin Eq. 2 checks U_F(w) < (1 - tau) * U_{F0}(w). When U_{F0}(w) < 0 (e.g., negative cost/fuel
     objectives in minecart-v0), (1 - tau) * U_{F0}(w) > U_{F0}(w), which reverses the inequality and
@@ -119,10 +127,14 @@ def compute_deployed_regret(
     reference_front: np.ndarray,
     preferences: np.ndarray,
 ) -> dict[str, float]:
-    """Compute deployed single-query scalarized regret against a reference/oracle front.
+    """Compute deployed single-query scalarized regret against an oracle or approximate reference front.
 
-    Also reports archive/front utility computed from the policy's own achieved return cloud so
-    Archive Blindness (archive utility - deployed utility) is directly visible.
+    Reports both:
+    - Unclamped signed gap (U_ref - U_deploy) and fraction_clipped (fraction where U_deploy > U_ref):
+      primary on approximate-reference benchmarks (minecart-v0, mo-lunar-lander-v3) where clipping at 0
+      would censor policies that exceed the reference front and bias arm comparisons.
+    - Non-negative clamped regret max(0, U_ref - U_deploy): identical to signed gap on exact oracles.
+    - Archive/front utility over the policy's achieved return cloud so Archive Blindness is directly visible.
     """
     returns = np.asarray(deployed_returns, dtype=np.float64)
     reference = np.asarray(reference_front, dtype=np.float64)
@@ -137,9 +149,11 @@ def compute_deployed_regret(
     archive_u, _ = compute_front_utilities(returns, weights)
 
     signed_gap = oracle_u - deployed_u
+    clipped_mask = signed_gap < 0.0
     regrets = np.maximum(0.0, signed_gap)
     tail_size = max(1, int(np.ceil(0.1 * len(regrets))))
     cvar_10 = float(np.sort(regrets)[-tail_size:].mean())
+    cvar_10_signed = float(np.sort(signed_gap)[-tail_size:].mean())
     return {
         "mean_regret": float(np.mean(regrets)),
         "median_regret": float(np.median(regrets)),
@@ -147,10 +161,53 @@ def compute_deployed_regret(
         "cvar_10_regret": cvar_10,
         "max_regret": float(np.max(regrets)),
         "mean_signed_gap": float(np.mean(signed_gap)),
+        "median_signed_gap": float(np.median(signed_gap)),
+        "cvar_10_signed_gap": cvar_10_signed,
+        "fraction_clipped": float(np.mean(clipped_mask)),
         "mean_deployed_utility": float(np.mean(deployed_u)),
         "mean_oracle_utility": float(np.mean(oracle_u)),
         "mean_archive_utility": float(np.mean(archive_u)),
         "archive_blindness_gap": float(np.mean(archive_u - deployed_u)),
+    }
+
+
+def compute_shifted_interior_retention(
+    intervention_returns: np.ndarray,
+    baseline_returns: np.ndarray,
+    preferences: np.ndarray,
+    reference_point: np.ndarray,
+    zero_tol: float = 1e-12,
+) -> dict[str, float]:
+    """Compute reference-shifted positive-utility interior retention (stable when raw utility <= 0).
+
+    Shifts scalarized utilities by -w^T r_ref:
+        U_tilde(w) = w^T (g(w) - r_ref)
+    and computes relative change (mean(U_tilde_int) - mean(U_tilde_base)) / mean(U_tilde_base).
+    """
+    int_ret = np.asarray(intervention_returns, dtype=np.float64)
+    base_ret = np.asarray(baseline_returns, dtype=np.float64)
+    if int_ret.shape != base_ret.shape or int_ret.ndim != 2:
+        raise ValueError("intervention_returns and baseline_returns must share 2D shape [M, d]")
+    weights = validate_preferences(preferences, int_ret.shape[1]).astype(np.float64)
+    ref = np.asarray(reference_point, dtype=np.float64)
+    if ref.shape != (int_ret.shape[1],):
+        raise ValueError(f"Expected reference_point shape ({int_ret.shape[1]},), got {ref.shape}")
+
+    ref_u = weights @ ref
+    shifted_int = np.sum(weights * int_ret, axis=1) - ref_u
+    shifted_base = np.sum(weights * base_ret, axis=1) - ref_u
+    mean_base = float(np.mean(shifted_base))
+    mean_int = float(np.mean(shifted_int))
+    if mean_base <= zero_tol:
+        raise ValueError(
+            "Baseline mean reference-shifted utility must be strictly positive; verify frozen reference_point"
+        )
+    rel_change = (mean_int - mean_base) / mean_base
+    return {
+        "mean_shifted_baseline_utility": mean_base,
+        "mean_shifted_intervention_utility": mean_int,
+        "shifted_retention_ratio": float(mean_int / mean_base),
+        "shifted_relative_change": float(rel_change),
     }
 
 
@@ -259,7 +316,15 @@ def sample_edge_cap_preferences(
     epsilon: float,
     rng: np.random.Generator,
 ) -> np.ndarray:
-    """Sample near-edge (2-face) preferences {w in Delta^{d-1} : w_i + w_j >= 1 - epsilon} for d >= 3."""
+    """Sample a truncated mid-edge band near each 1-face (edge) of Delta^{d-1} for d >= 3.
+
+    For each unordered pair (i, j), draws an on-edge split uniformly from [0.15, 0.85] (excluding exact
+    vertices and near-vertex ends) and off-edge mass m = epsilon * U^{1/(d-2)} distributed via
+    Dirichlet(1_{d-2}) over the remaining d - 2 coordinates. Because the split is truncated to [0.15, 0.85]
+    and the density omits the (1 - m) Jacobian factor, this samples a truncated, slightly non-uniform
+    mid-edge band inside {w in Delta^{d-1} : w_i + w_j >= 1 - epsilon} rather than exact Lebesgue-uniform
+    measure on the full edge cap.
+    """
     if reward_dim < 3 or per_edge <= 0:
         raise ValueError("edge-cap sampling requires reward_dim >= 3 and per_edge > 0")
     if not 0.0 < epsilon < 1.0:
@@ -269,7 +334,6 @@ def sample_edge_cap_preferences(
     off_alpha = np.ones(reward_dim - 2, dtype=np.float64)
     for first, second in itertools.combinations(range(reward_dim), 2):
         off_indices = [j for j in range(reward_dim) if j not in (first, second)]
-        # Keep both edge coordinates active (away from exact vertices) while staying within epsilon of the 1-face.
         edge_split = rng.uniform(0.15, 0.85, size=per_edge)
         off_mass = epsilon * np.power(rng.uniform(0.0, 1.0, size=per_edge), 1.0 / float(reward_dim - 2))
         off_shares = rng.dirichlet(off_alpha, size=per_edge)
@@ -285,10 +349,12 @@ def sample_edge_cap_preferences(
 
 
 class FaceBalancedPreferenceSampler:
-    """Static (outcome-independent) simplex-face-balanced vs. uniform preference sampler.
+    """Static (outcome-independent) preference samplers on Delta^{d-1}.
 
     Modes:
     - "uniform": i.i.d. Dirichlet(1_d) over Delta^{d-1}.
+    - "dirichlet_sparse": i.i.d. Dirichlet(alpha * 1_d) with 0 < alpha < 1 (default 0.25), a static
+      boundary-concentrated sparse prior with zero point mass on exact vertices.
     - "fixed_face_balanced": static mixture of
         * interior_prob on full simplex Dirichlet(1_d),
         * vertex_prob uniformly across the d simplex vertices (0-faces),
@@ -304,10 +370,11 @@ class FaceBalancedPreferenceSampler:
         seed: int,
         interior_prob: float = 0.50,
         vertex_prob: float = 0.25,
+        dirichlet_alpha: float = 0.25,
     ) -> None:
         if reward_dim < 2:
             raise ValueError("reward_dim must be >= 2")
-        if mode not in {"uniform", "fixed_face_balanced"}:
+        if mode not in {"uniform", "dirichlet_sparse", "fixed_face_balanced"}:
             raise ValueError(f"Unsupported sampler mode: {mode}")
         if not 0.0 <= interior_prob <= 1.0 or not 0.0 <= vertex_prob <= 1.0:
             raise ValueError("Mixture probabilities must lie in [0, 1]")
@@ -315,14 +382,22 @@ class FaceBalancedPreferenceSampler:
             raise ValueError("interior_prob + vertex_prob cannot exceed 1.0")
         if reward_dim == 2 and mode == "fixed_face_balanced" and interior_prob + vertex_prob < 1.0 - 1e-12:
             raise ValueError("For d=2 there are no proper sparse faces of size 2..d-1; interior+vertex must sum to 1")
+        if mode == "dirichlet_sparse" and not 0.0 < dirichlet_alpha < 1.0:
+            raise ValueError("dirichlet_alpha must lie strictly in (0, 1) for dirichlet_sparse mode")
 
         self.reward_dim = reward_dim
         self.mode = mode
         self.interior_prob = float(interior_prob)
         self.vertex_prob = float(vertex_prob)
         self.sparse_face_prob = max(0.0, 1.0 - self.interior_prob - self.vertex_prob)
+        self.dirichlet_alpha = float(dirichlet_alpha)
         self.rng = np.random.default_rng(seed)
-        self.stratum_counts: dict[str, int] = {"interior": 0, "vertex": 0, "sparse_face": 0}
+        self.stratum_counts: dict[str, int] = {
+            "interior": 0,
+            "dirichlet_sparse": 0,
+            "vertex": 0,
+            "sparse_face": 0,
+        }
         self.vertex_counts = np.zeros(reward_dim, dtype=np.int64)
         self.support_size_counts = np.zeros(reward_dim + 1, dtype=np.int64)
 
@@ -330,6 +405,13 @@ class FaceBalancedPreferenceSampler:
         if self.mode == "uniform":
             w = self.rng.dirichlet(np.ones(self.reward_dim, dtype=np.float64))
             self.stratum_counts["interior"] += 1
+            self.support_size_counts[self.reward_dim] += 1
+            return w.astype(np.float32)
+
+        if self.mode == "dirichlet_sparse":
+            alpha_vec = np.full(self.reward_dim, self.dirichlet_alpha, dtype=np.float64)
+            w = self.rng.dirichlet(alpha_vec)
+            self.stratum_counts["dirichlet_sparse"] += 1
             self.support_size_counts[self.reward_dim] += 1
             return w.astype(np.float32)
 
@@ -362,6 +444,7 @@ class FaceBalancedPreferenceSampler:
         total = sum(self.stratum_counts.values())
         return {
             "mode": self.mode,
+            "dirichlet_alpha": self.dirichlet_alpha if self.mode == "dirichlet_sparse" else None,
             "total_draws": total,
             "stratum_counts": dict(self.stratum_counts),
             "stratum_fractions": {k: (v / total if total else 0.0) for k, v in self.stratum_counts.items()},

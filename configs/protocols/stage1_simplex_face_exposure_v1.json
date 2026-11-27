@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "protocol_id": "stage1-simplex-face-exposure-v1",
-  "status": "frozen_pending_gate1_audit",
+  "protocol_revision": "v1.1-gate1-fixes",
+  "status": "frozen_pending_gate1b_reverification",
   "execution_authorized": false,
   "gate1_signoff_required": true,
   "target_venues": {
@@ -9,7 +10,12 @@
     "stage2_journal_extension": "IEEE TNNLS (JCR Q1; separate protocol)"
   },
   "primary_claim_id": "simplex-face-exposure",
-  "primary_research_question": "Does static on-policy simplex-face exposure reduce deployed face-cap regret as objective dimension d >= 3 grows while preserving interior utility within a prespecified >= 98.5% retention margin, with hindsight relabeling disabled?",
+  "primary_research_question": "Does static on-policy simplex-face exposure reduce deployed non-vertex face-cap regret across d >= 3 benchmarks (and as d increases within fruit-tree-v0 d in {3,4,5,6}) while preserving reference-shifted interior utility (95% CI lower bound >= -1.5%), with hindsight relabeling disabled?",
+  "claim_scope_adjudication": {
+    "intervention_only_novelty": true,
+    "metric_novelty_dropped": true,
+    "minecart_sampled_rho_090_adjudication": "Week-1 Step-2.1 Minecart checkpoint audit hit sampled Spearman rho = 0.90 (exact on n=5 due to single-preference specialist S anchoring rank 5; 0.80 argmax / 0.60 conditional-only), and n=5 carries low inferential weight. We explicitly drop any claim that deployed face-cap regret is a standalone novel evaluation metric and scope the contribution strictly to the on-policy non-relabeling simplex-face exposure intervention."
+  },
   "week1_gate_prerequisites": {
     "step1_full_text_literature_gate": {
       "status": "passed",
@@ -26,11 +32,17 @@
           "arxiv": "2609.26918",
           "evidence_level": "full_text",
           "note": "research/literature/notes/bonin2026coverage-collapse.md"
+        },
+        {
+          "paper_id": "basaklar2023pdmorl",
+          "arxiv": "2208.07914",
+          "evidence_level": "full_text",
+          "note": "research/literature/notes/basaklar2023pdmorl.md"
         }
       ]
     },
     "step2_minecart_metric_differentiation": {
-      "status": "passed",
+      "status": "adjudicated_intervention_only",
       "evidence": "research/evidence/week1_minecart_checkpoint_metrics_v1.json",
       "evidence_sha256": "a778dde64f1d8f14d932e29d7c394e7b9b7c45aa5cc077b53048a5dbc0b7b0aa",
       "summary": {
@@ -38,7 +50,7 @@
         "argmax_rho_face_cap_vs_apm_mag": 0.8,
         "argmax_cond4_rho_vs_spearman_and_apm": 0.6,
         "sampled_rho_face_cap_vs_apm_mag": 0.7,
-        "sampled_rho_face_cap_vs_spearman_caveat": "0.90 exact on n=5 due to single-preference specialist S anchoring rank 5; 0.80 across the 4 conditional checkpoints",
+        "sampled_rho_face_cap_vs_spearman": 0.9,
         "negative_utility_apm_sign_guard_verified": true,
         "raw_unguarded_self_apm_on_ref_front": 0.2535
       }
@@ -63,7 +75,8 @@
       "receipt": "research/qualification/stage1_throughput_probe_v1.json",
       "hei_run_id": "EXP-810E47201598",
       "max_gpu_hours_ceiling": 2.0
-    }
+    },
+    "gate1_audit_receipt": "research/qualification/gate1_stage1_protocol_audit_v1.md"
   },
   "learner_contract": {
     "algorithm": "SimplexPPO",
@@ -73,6 +86,7 @@
     "popart_algebraic_note": "Positive diagonal PopArt rescaling diag(sigma) e_i proportional to e_i leaves exact simplex vertices invariant; normalization distortion applies strictly to near-face mixed-weight regions, never exact corners.",
     "paired_initialization": true,
     "checkpoint_selection_rule": "final_fixed_budget_checkpoint_only_no_validation_selection",
+    "anchor_freeze_before_evaluation_rule": "All 21 vertex-specialist anchor runs (9 Minecart + 12 Lunar; final fixed-budget checkpoint only) MUST be trained, frozen, and SHA-256 hashed BEFORE evaluating any Stage-1A arm checkpoint.",
     "budget_separation": {
       "training_interactions_matched": true,
       "actor_and_critic_updates_matched": true,
@@ -108,6 +122,15 @@
         "curriculum_eval_overhead_steps": 0
       }
     ],
+    "stage1a_sparse_prior_control": {
+      "id": "dirichlet_sparse",
+      "kind": "static_sparse_prior_control",
+      "sampler": "FaceBalancedPreferenceSampler(mode='dirichlet_sparse', dirichlet_alpha=0.25)",
+      "distribution": "i.i.d. Dirichlet(0.25 * 1_d) per episode; concentrates mass near simplex boundaries with zero point mass on exact vertices",
+      "benchmarks_included": ["fruit-tree-v0", "fruit-tree-v0-d-subset-sweep", "minecart-v0"],
+      "curriculum_eval_overhead_steps": 0,
+      "reporting_rule": "Reported as a predeclared secondary static-control contrast against fixed_face_balanced on non-vertex face-cap regret; if dirichlet_sparse ties or beats fixed_face_balanced, report sparse-prior sufficiency honestly."
+    },
     "stage1b_conditional_adaptive_expansion": {
       "enabled_in_initial_sweep": false,
       "unlock_condition": "Unlocked ONLY after Stage-1A completes and coordinator+Gate review confirms residual boundary regret justifying adaptive allocation.",
@@ -123,9 +146,13 @@
           "description": "Outcome-dependent preference allocation over face-stratified support with matched total training + curriculum + update budgets."
         }
       ],
-      "adaptive_benefit_decision_rule": "Claim adaptive benefit ONLY if adaptive_face_balanced beats BOTH fixed_face_balanced AND compute_matched_random on deployed face-cap regret at strictly matched total environment and optimizer budgets (Holm-adjusted paired permutation p < 0.05 and 95% paired bootstrap CI excluding 0) while satisfying the >= 98.5% interior-utility retention margin. If fixed_face_balanced ties or beats adaptive_face_balanced, report the static face-exposure sufficiency result honestly."
+      "adaptive_benefit_decision_rule": "Claim adaptive benefit ONLY if adaptive_face_balanced beats BOTH fixed_face_balanced AND compute_matched_random on the primary non-vertex face-cap regret endpoint at strictly matched total environment and optimizer budgets (Holm-adjusted paired permutation p < 0.05 and 95% paired bootstrap CI excluding 0) while satisfying the interior-utility non-inferiority criterion (95% CI lower bound >= -0.015). If fixed_face_balanced ties or beats adaptive_face_balanced, report the static face-exposure sufficiency result honestly."
     },
     "secondary_minecart_2x2_normalization_control": {
+      "status": "deferred_to_stage1b_or_appendix",
+      "included_in_stage1a_budget": false,
+      "additional_runs_if_activated": 20,
+      "additional_gpu_hours_if_activated": 37.3,
       "env_id": "minecart-v0",
       "reward_dim": 3,
       "factors": {
@@ -133,7 +160,7 @@
         "actor_scalarization": ["raw_utility_preserving", "uncompensated_popart_sigma_scaled"]
       },
       "implied_preference_w_hat_region": "near_face_mixed_weights_only",
-      "reporting_rule": "Move to appendix if interaction and near-face distortion effect are null."
+      "reporting_rule": "Deferred out of Stage-1A to keep initial GPU budget lean; if activated later and null, move to appendix."
     }
   },
   "benchmarks": [
@@ -146,7 +173,9 @@
       "reference_point": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
       "oracle_type": "exact_discounted_oracle",
       "oracle_module": "src/envs/fruit_tree_oracle.py",
+      "regret_estimator": "exact_oracle_gap_nonnegative",
       "anchor_runs_budgeted": 0,
+      "arms_included": ["uniform", "dirichlet_sparse", "fixed_face_balanced"],
       "paired_seeds": [20269101, 20269102, 20269103, 20269104, 20269105, 20269106, 20269107, 20269108, 20269109, 20269110, 20269111, 20269112],
       "training_interactions": 153600,
       "streams": 16,
@@ -154,12 +183,18 @@
       "width": 128,
       "gae_lambda": 1.0,
       "verified_max_gpu_hours_per_run": 0.0134,
-      "primary_comparison": "exact_oracle_deployed_face_cap_regret",
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269151,
         "final_test_seed": 20269191,
-        "counts": {"vertices": 6, "vertex_cap": 60, "edge_cap": 60, "interior_uniform": 100}
+        "primary_non_vertex_face_cap_composition": {
+          "exact_vertices_excluded": true,
+          "vertex_cap_count": 60,
+          "edge_cap_count": 60,
+          "total_primary_preferences": 120,
+          "weighting": "equal_per_preference (50.0% vertex_cap, 50.0% edge_cap)"
+        },
+        "counts": {"vertices_secondary": 6, "vertex_cap": 60, "edge_cap": 60, "interior_uniform": 100}
       }
     },
     {
@@ -171,11 +206,18 @@
       "base_protocol_sha256": "ad4666d7fb350bde22ca52bab5e4b3112dcc88825b92af9d5c3bb23ef1e9f935",
       "reward_scale": [0.9659120784281335, 0.9659120784281335, 0.8247459754193536],
       "reference_point": [-0.04389009065716453, -0.04389009065716453, -1.0215943973394292],
-      "oracle_type": "environment_reference_front_plus_vertex_anchors",
+      "oracle_type": "approximate_env_reference_front_plus_frozen_vertex_anchors",
       "reference_front_artifact": "research/calibration/minecart_v0_gamma099_reference_front.json",
       "reference_front_sha256": "f4e48133776af48389a6b31272826887f305b72047ef737378334813803613b9",
+      "regret_estimator": "unclamped_signed_gap_primary_plus_fraction_clipped",
       "anchor_runs_budgeted": 9,
-      "anchor_spec": {"vertices": 3, "seeds_per_vertex": 3, "anchor_seeds": [20269281, 20269282, 20269283]},
+      "anchor_spec": {
+        "vertices": 3,
+        "seeds_per_vertex": 3,
+        "anchor_seeds": [20269281, 20269282, 20269283],
+        "selection_rule": "final_fixed_budget_checkpoint_only_frozen_and_hashed_before_arm_eval"
+      },
+      "arms_included": ["uniform", "dirichlet_sparse", "fixed_face_balanced"],
       "paired_seeds": [20269201, 20269202, 20269203, 20269204, 20269205, 20269206, 20269207, 20269208, 20269209, 20269210],
       "training_interactions": 4000000,
       "streams": 8,
@@ -183,14 +225,20 @@
       "width": 256,
       "gae_lambda": 1.0,
       "verified_max_gpu_hours_per_run": 1.8639,
-      "primary_comparison": "direct_paired_deployed_scalarized_utility_and_env_ref_face_cap_regret",
       "separate_task_success_metric": "ore_delivery_rate",
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269251,
         "final_test_seed": 20269291,
         "episodes_per_preference": 3,
-        "counts": {"vertices": 3, "vertex_cap": 30, "edge_cap": 30, "interior_uniform": 64}
+        "primary_non_vertex_face_cap_composition": {
+          "exact_vertices_excluded": true,
+          "vertex_cap_count": 30,
+          "edge_cap_count": 30,
+          "total_primary_preferences": 60,
+          "weighting": "equal_per_preference (50.0% vertex_cap, 50.0% edge_cap)"
+        },
+        "counts": {"vertices_secondary": 3, "vertex_cap": 30, "edge_cap": 30, "interior_uniform": 64}
       }
     },
     {
@@ -203,9 +251,16 @@
       "base_protocol_sha256": "11ea5c70a130e8cabeb108ce6ba14273cf43035882ca3d024dc24bed7cb5c5b2",
       "reward_scale": [0.0179126033542946, 0.010918515947335474, 0.016333719502911202, 0.032479782831596124],
       "reference_point": [-1.15737194297178, -2.3275130419645698, -1.1397362011679149, -1.6736955655595682],
-      "oracle_type": "direct_paired_utility_plus_vertex_anchors",
+      "oracle_type": "frozen_vertex_anchor_front_and_direct_paired_utility",
+      "regret_estimator": "unclamped_signed_gap_primary_plus_fraction_clipped",
       "anchor_runs_budgeted": 12,
-      "anchor_spec": {"vertices": 4, "seeds_per_vertex": 3, "anchor_seeds": [20269381, 20269382, 20269383]},
+      "anchor_spec": {
+        "vertices": 4,
+        "seeds_per_vertex": 3,
+        "anchor_seeds": [20269381, 20269382, 20269383],
+        "selection_rule": "final_fixed_budget_checkpoint_only_frozen_and_hashed_before_arm_eval"
+      },
+      "arms_included": ["uniform", "fixed_face_balanced"],
       "paired_seeds": [20269301, 20269302, 20269303, 20269304, 20269305, 20269306, 20269307, 20269308, 20269309, 20269310],
       "training_interactions": 4000000,
       "streams": 8,
@@ -213,27 +268,35 @@
       "width": 256,
       "gae_lambda": 0.95,
       "verified_max_gpu_hours_per_run": 0.9536,
-      "primary_comparison": "direct_paired_deployed_scalarized_utility_and_vertex_anchor_regret",
       "separate_task_success_metric": "native_plus100_helipad_landing_rate",
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269351,
         "final_test_seed": 20269391,
         "episodes_per_preference": 3,
-        "counts": {"vertices": 4, "vertex_cap": 40, "edge_cap": 36, "interior_uniform": 64}
+        "primary_non_vertex_face_cap_composition": {
+          "exact_vertices_excluded": true,
+          "vertex_cap_count": 40,
+          "edge_cap_count": 36,
+          "total_primary_preferences": 76,
+          "weighting": "equal_per_preference (52.63% vertex_cap, 47.37% edge_cap)"
+        },
+        "counts": {"vertices_secondary": 4, "vertex_cap": 40, "edge_cap": 36, "interior_uniform": 64}
       }
     },
     {
       "env_id": "deep-sea-treasure-v0",
       "role": "sanity_check_d2_only",
       "excluded_from_d_ge_3_starvation_claim": true,
-      "exclusion_rationale": "At d=2, epsilon-cap volume scales linearly O(epsilon), so d=2 cannot test exponential O(epsilon^(d-1)) simplex-boundary starvation; retained strictly as a low-dimensional sanity check.",
+      "exclusion_rationale": "At d=2, epsilon-cap volume scales linearly O(epsilon), so d=2 cannot test exponential O(epsilon^(d-1)) simplex-boundary starvation; retained strictly as a low-dimensional sanity check outside the k=3 Holm family.",
       "reward_dim": 2,
       "gamma": 0.99,
       "reward_scale": [1.0, 1.0],
       "reference_point": [0.0, -25.0],
       "oracle_type": "exact_discounted_oracle",
+      "regret_estimator": "exact_oracle_gap_nonnegative",
       "anchor_runs_budgeted": 0,
+      "arms_included": ["uniform", "fixed_face_balanced"],
       "paired_seeds": [20269401, 20269402, 20269403, 20269404, 20269405, 20269406, 20269407, 20269408, 20269409, 20269410],
       "training_interactions": 153600,
       "streams": 16,
@@ -241,24 +304,90 @@
       "width": 128,
       "gae_lambda": 1.0,
       "verified_max_gpu_hours_per_run": 0.02,
-      "primary_comparison": "exact_oracle_deployed_face_cap_regret",
       "evaluation_splits": {
         "epsilon": 0.1,
         "development_seed": 20269451,
         "final_test_seed": 20269491,
-        "counts": {"vertices": 2, "vertex_cap": 20, "edge_cap": 0, "interior_uniform": 50}
+        "primary_non_vertex_face_cap_composition": {
+          "exact_vertices_excluded": true,
+          "vertex_cap_count": 20,
+          "edge_cap_count": 0,
+          "total_primary_preferences": 20,
+          "weighting": "equal_per_preference (100% vertex_cap; no proper 1-faces at d=2)"
+        },
+        "counts": {"vertices_secondary": 2, "vertex_cap": 20, "edge_cap": 0, "interior_uniform": 50}
       }
     }
   ],
+  "fruit_tree_d_subset_scaling_sweep": {
+    "purpose": "De-confound objective dimension d from environment identity by testing d in {3, 4, 5, 6} within the fixed fruit-tree-v0 environment using exact discounted oracles on CPU.",
+    "env_id": "fruit-tree-v0",
+    "oracle_module": "src/envs/fruit_tree_oracle.py",
+    "arms_included": ["uniform", "dirichlet_sparse", "fixed_face_balanced"],
+    "training_interactions": 153600,
+    "verified_max_gpu_hours_per_run": 0.0134,
+    "device": "cpu",
+    "subsets": [
+      {
+        "reward_dim": 3,
+        "objective_indices": [0, 1, 2],
+        "pareto_leaves_verified": 24,
+        "distinct_vertex_leaves_verified": 3,
+        "paired_seeds": [20269501, 20269502, 20269503, 20269504, 20269505, 20269506, 20269507, 20269508, 20269509, 20269510],
+        "development_seed": 20269551,
+        "final_test_seed": 20269591,
+        "non_vertex_face_cap_counts": {"vertex_cap": 30, "edge_cap": 30, "interior_uniform": 100}
+      },
+      {
+        "reward_dim": 4,
+        "objective_indices": [0, 1, 2, 3],
+        "pareto_leaves_verified": 48,
+        "distinct_vertex_leaves_verified": 4,
+        "paired_seeds": [20269601, 20269602, 20269603, 20269604, 20269605, 20269606, 20269607, 20269608, 20269609, 20269610],
+        "development_seed": 20269651,
+        "final_test_seed": 20269691,
+        "non_vertex_face_cap_counts": {"vertex_cap": 40, "edge_cap": 36, "interior_uniform": 100}
+      },
+      {
+        "reward_dim": 5,
+        "objective_indices": [0, 1, 2, 3, 4],
+        "pareto_leaves_verified": 59,
+        "distinct_vertex_leaves_verified": 5,
+        "paired_seeds": [20269701, 20269702, 20269703, 20269704, 20269705, 20269706, 20269707, 20269708, 20269709, 20269710],
+        "development_seed": 20269751,
+        "final_test_seed": 20269791,
+        "non_vertex_face_cap_counts": {"vertex_cap": 50, "edge_cap": 50, "interior_uniform": 100}
+      },
+      {
+        "reward_dim": 6,
+        "objective_indices": [0, 1, 2, 3, 4, 5],
+        "pareto_leaves_verified": 64,
+        "distinct_vertex_leaves_verified": 6,
+        "reuses_core_benchmark_runs": true,
+        "note": "Reuses the 12-seed core fruit-tree-v0 (d=6) Stage-1A runs (0 duplicate runs)."
+      }
+    ]
+  },
   "metrics_and_analysis": {
     "inference_modes": ["argmax", "sampled"],
     "primary_inference_mode": "argmax",
-    "primary_metrics": [
-      "deployed_face_cap_regret_mean_and_cvar10",
-      "direct_paired_deployed_face_cap_utility",
-      "interior_uniform_utility_and_retention_ratio"
-    ],
+    "single_primary_endpoint_per_benchmark": {
+      "name": "argmax_deployed_non_vertex_face_cap_mean_regret",
+      "exact_vertices_excluded": true,
+      "exact_oracle_benchmarks": "exact non-negative mean regret (fruit-tree-v0, fruit-tree d-subsets)",
+      "approximate_reference_benchmarks": "unclamped mean signed gap U_ref - U_deploy (minecart-v0, mo-lunar-lander-v3), reported alongside fraction_clipped",
+      "primary_contrast": "fixed_face_balanced vs uniform",
+      "holm_family_size": 3,
+      "holm_family_benchmarks": ["fruit-tree-v0", "minecart-v0", "mo-lunar-lander-v3"]
+    },
     "secondary_diagnostic_metrics": [
+      "exact_vertex_regret",
+      "sampled_mode_non_vertex_face_cap_regret",
+      "face_cap_cvar10_regret_and_signed_gap",
+      "fraction_clipped_on_approximate_references",
+      "direct_paired_deployed_face_cap_utility",
+      "fixed_face_balanced_vs_dirichlet_sparse_contrast",
+      "within_environment_fruit_tree_d_scaling_trend_d3_to_d6",
       "per_objective_spearman_controllability_2605_10585",
       "sign_guarded_apm_magnitude_and_shifted_tau010_2609_26918",
       "effective_coverage_C_2609_26918",
@@ -266,39 +395,45 @@
       "hypervolume_fixed_ref",
       "task_success_rate_separate_from_utility"
     ],
-    "apm_sign_guard_policy": "Always report magnitude-guarded APM (U_F < U_F0 - tau * |U_F0|) as primary and reference-shifted APM as secondary; never report raw unguarded Eq. 2 on negative-utility benchmarks without flagging the self-abandonment failure.",
+    "apm_sign_guard_and_archive_blindness_policy": "Always report magnitude-guarded APM (U_F < U_F0 - tau * |U_F0|) as primary APM and reference-shifted APM as secondary; never report raw unguarded Eq. 2 on negative-utility benchmarks without flagging self-abandonment. Explicitly disclose in the paper that front-based APM inherits Archive Blindness by construction.",
+    "edge_cap_sampling_disclosure": "sample_edge_cap_preferences samples a truncated mid-edge band (on-edge split in [0.15, 0.85], omitting the (1-m) Jacobian) inside {w_i + w_j >= 1 - epsilon}; describe accurately in the paper rather than claiming exact Lebesgue uniformity on the full edge cap.",
     "interior_utility_retention_margin": {
       "minimum_retention_ratio": 0.985,
       "maximum_relative_degradation": 0.015,
-      "evaluation_criterion": "Lower bound of 95% paired bootstrap CI on relative interior-uniform utility change (FB - Unif)/|Unif| >= -0.015, OR point retention ratio >= 0.985 with non-inferiority verified.",
-      "pilot_calibration_basis": "Week-1 fruit-tree-v0 (n=10) achieved 100.40% point retention with 95% CI lower bound -0.63%."
+      "sole_criterion": "Lower bound of 95% paired bootstrap CI on relative reference-shifted interior-uniform utility change (U_tilde_FB - U_tilde_Unif) / U_tilde_Unif >= -0.015, where U_tilde(w) = w^T (g(w) - r_ref) > 0 uses each benchmark's frozen reference_point. Strictly required with no point-estimate fallback.",
+      "denominator_normalization": "reference_shifted_positive_utility_U_minus_wTr_ref",
+      "helper_function": "src/evaluation/simplex_metrics.py::compute_shifted_interior_retention",
+      "pilot_calibration_basis": "Week-1 fruit-tree-v0 (n=10, r_ref=0) achieved +0.40% point change with 95% CI lower bound -0.63%."
     },
     "statistical_protocol": {
       "summary_estimators": ["mean", "rliable_iqm"],
       "confidence_intervals": "95% paired bootstrap CI (10000 resamples)",
       "hypothesis_test": "exact paired sign-flip permutation test across training seeds (never across episodes)",
       "effect_size": "paired Cohen's d_z",
-      "multiplicity_control": "Holm-Bonferroni across the core d >= 3 benchmark family"
+      "multiplicity_control": "Holm-Bonferroni strictly across the k=3 core benchmarks on the single primary endpoint (argmax_deployed_non_vertex_face_cap_mean_regret)"
     },
-    "final_test_firewall": "Final-test preference splits (seeds *91) are strictly locked until training completes and all final-budget checkpoints are hashed and frozen. Zero tuning, normalization, or checkpoint selection on final-test splits."
+    "final_test_firewall": "Final-test preference splits (seeds *91) are strictly locked until training completes and all final-budget checkpoints (including all 21 vertex-specialist anchors) are frozen and SHA-256 hashed. Zero tuning, normalization, or checkpoint selection on final-test splits."
   },
   "compute_budget_and_routing": {
     "orchestrator": "hei-research",
-    "matched_hardware_pairing_rule": "Both arms (uniform and fixed_face_balanced) for any given training seed MUST execute on identical hardware, OS, Python/Torch/CUDA versions, and backend. Never mix local RTX 4060, Kaggle T4, and Colab inside a single paired contrast.",
+    "matched_hardware_pairing_rule": "All arms (uniform, fixed_face_balanced, and dirichlet_sparse where enabled) for any given training seed MUST execute on identical hardware, OS, Python/Torch/CUDA versions, and backend. Never mix local RTX 4060, Kaggle T4, and Colab inside a single paired contrast.",
     "stage1a_run_counts": {
-      "fruit_tree_d6_cpu": 24,
-      "minecart_d3_gpu": 20,
-      "lunar_d4_gpu": 20,
+      "fruit_tree_d6_core_cpu": 36,
+      "fruit_tree_d3_to_d5_subset_cpu": 90,
       "dst_d2_sanity_cpu": 20,
+      "minecart_d3_gpu_3arms": 30,
+      "lunar_d4_gpu_2arms": 20,
       "vertex_specialist_anchors_gpu": 21,
-      "total_stage1a_runs": 105,
-      "total_stage1a_gpu_runs": 61
+      "total_stage1a_cpu_runs": 146,
+      "total_stage1a_gpu_runs": 71,
+      "total_stage1a_runs": 217
     },
     "estimated_stage1a_gpu_hours": {
-      "minecart_20_runs": 37.3,
+      "minecart_30_runs": 55.9,
       "lunar_20_runs": 19.1,
       "vertex_anchors_21_runs": 28.2,
-      "total_gpu_hours": 84.6,
+      "total_gpu_hours": 103.2,
+      "estimated_cpu_hours_fruit_tree_and_dst": 1.8,
       "max_gpu_hours_per_run_verified": 1.8639
     }
   }

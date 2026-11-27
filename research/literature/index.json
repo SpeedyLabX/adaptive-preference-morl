@@ -174,19 +174,21 @@
       "access_status": "open_full_text",
       "evidence_level": "full_text",
       "full_text_required": false,
-      "access_note": "Legal primary-source full text retrieved and checked on 2026-10-15; local temporary PDF/text was not committed.",
-      "access_checked_at": "2026-10-14T19:59:52+00:00",
+      "access_note": "Full 24-page ICLR 2023 arXiv v3 PDF (arXiv:2208.07914v3, 29 May 2023; main pp. 1-11 + Appendices A-B pp. 12-24) re-verified in full on 2026-11-27 from local Git-ignored research/literature/pdfs/basaklar2023pdmorl.pdf (SHA-256: 43b55a23a297fd77f142c8ecb83a9ecc2e2f1b2b9eea1cd8c47347647cbc1cde); key-preference corner interpolation mechanism mapped.",
+      "access_checked_at": "2026-11-27T15:21:00+00:00",
       "url": "https://openreview.net/forum?id=zS9sRyaPFlJ",
       "tags": [
         "morl",
-        "preference-conditioned"
+        "preference-conditioned",
+        "key-preferences"
       ],
       "claim_ids": [
-        "combined-allocation"
+        "combined-allocation",
+        "simplex-face-exposure"
       ],
       "note": "research/literature/notes/basaklar2023pdmorl.md",
       "added_at": "2026-10-14T19:56:15+00:00",
-      "updated_at": "2026-10-14T19:59:52+00:00",
+      "updated_at": "2026-11-27T15:21:00+00:00",
       "metadata_verification_url": "https://arxiv.org/abs/2208.07914"
     },
     {

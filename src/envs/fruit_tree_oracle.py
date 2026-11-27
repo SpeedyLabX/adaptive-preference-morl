@@ -1,7 +1,8 @@
-"""Exact discounted oracle and node one-hot encoder for mo-gymnasium fruit-tree-v0 (d=6)."""
+"""Exact discounted oracle and node one-hot encoder for mo-gymnasium fruit-tree-v0 (d <= 6)."""
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
@@ -22,25 +23,38 @@ def encode_fruit_tree_node(obs: np.ndarray, tree_depth: int = 6) -> np.ndarray:
     return encoded
 
 
-def extract_fruit_tree_oracle(tree_depth: int = 6, gamma: float = 0.99) -> dict[str, Any]:
-    """Compute and verify the exact discounted Pareto leaf returns of fruit-tree-v0 by exact rollout enumeration."""
+def extract_fruit_tree_oracle(
+    tree_depth: int = 6,
+    gamma: float = 0.99,
+    objective_indices: Sequence[int] | None = None,
+) -> dict[str, Any]:
+    """Compute and verify exact discounted leaf returns of fruit-tree-v0 (or an objective subset d in {2..6})."""
     env = make_mo_env("fruit-tree-v0")
     try:
         core: Any = env.unwrapped
         actual_depth = int(core.tree_depth)
         if actual_depth != tree_depth:
             raise ValueError(f"Expected fruit-tree-v0 depth {tree_depth}, got {actual_depth}")
-        reward_dim = int(core.reward_dim)
+        full_reward_dim = int(core.reward_dim)
+        if objective_indices is None:
+            selected = tuple(range(full_reward_dim))
+        else:
+            selected = tuple(int(idx) for idx in objective_indices)
+            if len(selected) < 2 or len(set(selected)) != len(selected):
+                raise ValueError("objective_indices must contain at least two distinct objective indices")
+            if any(not 0 <= idx < full_reward_dim for idx in selected):
+                raise ValueError(f"objective_indices out of bounds for reward_dim={full_reward_dim}: {selected}")
+
         num_leaves = 1 << tree_depth
-        leaf_returns = np.zeros((num_leaves, reward_dim), dtype=np.float64)
-        raw_leaf_returns = np.zeros((num_leaves, reward_dim), dtype=np.float64)
+        leaf_returns = np.zeros((num_leaves, full_reward_dim), dtype=np.float64)
+        raw_leaf_returns = np.zeros((num_leaves, full_reward_dim), dtype=np.float64)
         action_paths: list[list[int]] = []
 
         for leaf_idx in range(num_leaves):
             obs, _ = env.reset(seed=0)
             path = [(leaf_idx >> shift) & 1 for shift in reversed(range(tree_depth))]
-            raw = np.zeros(reward_dim, dtype=np.float64)
-            discounted = np.zeros(reward_dim, dtype=np.float64)
+            raw = np.zeros(full_reward_dim, dtype=np.float64)
+            discounted = np.zeros(full_reward_dim, dtype=np.float64)
             discount = 1.0
             terminated = False
             for action in path:
@@ -64,14 +78,16 @@ def extract_fruit_tree_oracle(tree_depth: int = 6, gamma: float = 0.99) -> dict[
     finally:
         env.close()
 
+    sel_idx = list(selected)
     return {
         "env_id": "fruit-tree-v0",
         "tree_depth": tree_depth,
-        "reward_dim": reward_dim,
+        "reward_dim": len(sel_idx),
+        "objective_indices": sel_idx,
         "gamma": gamma,
         "num_leaves": num_leaves,
-        "discounted_leaf_returns": leaf_returns,
-        "raw_leaf_returns": raw_leaf_returns,
+        "discounted_leaf_returns": leaf_returns[:, sel_idx],
+        "raw_leaf_returns": raw_leaf_returns[:, sel_idx],
         "action_paths": action_paths,
         "verified_max_abs_diff_vs_env_pareto_front": max_abs_diff,
     }

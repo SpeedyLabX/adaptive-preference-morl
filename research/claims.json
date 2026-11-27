@@ -99,19 +99,31 @@
     },
     {
       "id": "simplex-face-exposure",
-      "title": "Fixed on-policy simplex-face exposure reduces deployed face-cap regret as objective dimension d grows without sacrificing interior utility",
+      "title": "Static on-policy simplex-face exposure reduces deployed non-vertex face-cap regret across d>=3 without sacrificing interior utility",
       "status": "hypothesis",
       "confidence": "low",
-      "evidence": ["docs/research/Q1_RESEARCH_BLUEPRINT.md"],
-      "antecedents": ["delasheras2026controllability", "bonin2026coverage-collapse", "ambadkar2026d3po", "alegre2023gpi-prioritization"],
-      "closest_antecedent": "delasheras2026controllability",
-      "known": "Controllability work (arXiv:2605.10585) shows archive HV/EU can mask preference insensitivity; Preference Coverage Collapse (arXiv:2609.26918) isolates coverage loss from off-policy hindsight relabeling via APM and her_mix.",
-      "difference": "Tests whether simplex-boundary starvation scales with objective dimension d>=3 in an on-policy learner with faithful scalarization and no hindsight relabeling, and whether fixed face-balanced exposure reduces exact-oracle / deployed face-cap regret within a prespecified interior-utility margin.",
+      "evidence": [
+        "docs/research/Q1_RESEARCH_BLUEPRINT.md",
+        "research/evidence/week1_minecart_checkpoint_metrics_v1.json",
+        "research/evidence/week1_fruit_tree_pilot_v1.json",
+        "research/qualification/stage1_throughput_probe_v1.json",
+        "configs/protocols/stage1_simplex_face_exposure_v1.json"
+      ],
+      "antecedents": [
+        "delasheras2026controllability",
+        "bonin2026coverage-collapse",
+        "basaklar2023pdmorl",
+        "ambadkar2026d3po",
+        "alegre2023gpi-prioritization"
+      ],
+      "closest_antecedent": "basaklar2023pdmorl",
+      "known": "Controllability (arXiv:2605.10585) diagnoses preference insensitivity via per-objective Spearman correlation; Preference Coverage Collapse (arXiv:2609.26918) isolates off-policy hindsight relabeling collapse via APM and her_mix; PD-MORL (ICLR 2023, arXiv:2208.07914) uses simplex corners plus center to fit an auxiliary RBF alignment interpolator from oracle discrete fronts or separate specialist pre-training runs alongside off-policy HER.",
+      "difference": "Intervention-only contribution (standalone metric-novelty claim explicitly dropped after Week-1 Step-2.1 Minecart sampled Spearman hit rho=0.90 on n=5): tests a single-stage, zero-oracle static face-balanced preference sampler inside an on-policy learner with hindsight relabeling disabled, measuring deployed non-vertex face-cap regret against both Uniform and static Dirichlet(alpha=0.25) sparse-prior controls, with within-environment d-scaling tested on fruit-tree-v0 (d in {3,4,5,6}) alongside Minecart (d=3) and full-simplex Lunar (d=4).",
       "novelty_verdict": "novelty_unresolved",
       "novelty_confidence": "medium",
-      "falsifier": "Full-text reading of arXiv:2605.10585 and arXiv:2609.26918 showing they already establish on-policy face-exposure interventions, Week-1 pilot showing Spearman/APM already rank checkpoints identically (Spearman >= 0.9), or paired-seed evidence showing no face-cap regret reduction within the interior retention margin.",
-      "differentiating_experiment": "Week-1 STOP/PIVOT pilot on fruit-tree-v0 (d=6, exact oracle) and existing audited Minecart (d=3) checkpoints comparing Uniform vs Fixed Face-Balanced across Spearman, APM, and deployed face-cap regret before authorizing larger sweeps.",
-      "allowed_wording": "We test whether fixed on-policy simplex-face exposure reduces deployed face-cap regret for d>=3 without sacrificing interior utility; Week-1 STOP/PIVOT gate is pending."
+      "falsifier": "Paired-seed Stage-1A evidence showing no Holm-adjusted (k=3) reduction in argmax non-vertex face-cap regret vs Uniform within the strict 95% CI >= -1.5% shifted interior-utility retention margin, within-environment fruit-tree d-subset scaling failing to show growing starvation benefit across d in {3,4,5,6}, or Dirichlet(alpha=0.25) sparse-prior control matching/beating fixed face-balanced exposure.",
+      "differentiating_experiment": "Frozen Stage-1A protocol (configs/protocols/stage1_simplex_face_exposure_v1.json): 10-12 matched-hardware paired seeds on fruit-tree-v0 (d=6 + d in {3,4,5} subsets), Minecart (d=3), and full-simplex Lunar (d=4), contrasting Fixed Face-Balanced vs Uniform and static Dirichlet(0.25) sparse prior with 21 frozen vertex-specialist anchors; pending Gate-1B re-verification.",
+      "allowed_wording": "Week-1 fruit-tree-v0 (d=6, n=10) pilot showed -56.3% face-cap regret with 100.4% interior retention; Minecart sampled Spearman hit 0.90 so metric novelty is dropped in favor of an intervention-only Stage-1A claim pending Gate-1B re-verification and Stage-1A execution."
     }
   ]
 }

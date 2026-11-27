@@ -23,6 +23,16 @@ def test_fruit_tree_oracle_matches_env_pareto_front_exactly():
     assert np.all(opt_u > 7.5)
 
 
+def test_fruit_tree_objective_subset_oracles_for_d_scaling_3_to_6():
+    for dim in (3, 4, 5, 6):
+        subset = extract_fruit_tree_oracle(tree_depth=6, gamma=0.99, objective_indices=range(dim))
+        assert subset["reward_dim"] == dim
+        assert subset["discounted_leaf_returns"].shape == (64, dim)
+        assert subset["verified_max_abs_diff_vs_env_pareto_front"] < 1e-6
+        _, opt_leaves = exact_oracle_utility(np.eye(dim, dtype=np.float64), subset["discounted_leaf_returns"])
+        assert len(set(opt_leaves.tolist())) == dim
+
+
 def test_encode_fruit_tree_node_is_bijective_one_hot():
     seen: set[int] = set()
     for row in range(7):
