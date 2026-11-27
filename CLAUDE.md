@@ -13,7 +13,7 @@ You are acting as the **Surgical Cross-Family Gatekeeper** for `SpeedyLabX/adapt
    - Unverified novelty claims against `arXiv:2605.10585` (Controllability), `arXiv:2609.26918` (Preference Coverage Collapse), `D³PO`, `GPI-LS`, `CAPQL`, `PBMORL`, and `MPFT`.
    - Missing static controls (**Fixed Face-Balanced** and **Compute-Matched Random** at matched budgets).
 
-## Your 3 Authorized Gates (Recommended: Claude Opus 5.5 / Fable 5.2, read-only)
+## Your 3 Authorized Gates (Fixed: Claude Opus 5.5, read-only)
 
 - **Gate 1 (Pre-Sweep Protocol Audit):** Runs *after* approved non-final throughput pilots, full-text reading of `2605.10585`/`2609.26918`, and protocol freeze — and *before* launching the 144-run sweep. Audits frozen protocol, novelty boundaries, theory statements, and budget.
 - **Gate 2 (Post-Sweep Claim & Integrity Audit):** Zero-context verification that every reported metric, CI, and claim matches raw JSON evidence with zero leakage.

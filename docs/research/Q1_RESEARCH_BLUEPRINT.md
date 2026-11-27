@@ -37,7 +37,7 @@
 - **Kill:** 4-signal adaptive PCQN novelty claim (`research/claims.json` already classifies individual signals as incremental; PCQN failed Minecart — retain PCQN negative results in the appendix).
 - **Defer:** Dynamics-shift robustness (separate follow-up paper).
 - **Infrastructure only:** Research harness & Orca workflow are reproducibility tooling, not claimed algorithmic contributions.
-- **Mandatory pre-freeze reading gate:** Read full text of **`arXiv:2605.10585`** (*Controllability*) and **`arXiv:2609.26918`** (*Preference Coverage Collapse*) before freezing final novelty wording.
+- **Mandatory pre-freeze reading gate & top-venue literature expansion:** Read full text of **`arXiv:2605.10585`** (*Controllability*) and **`arXiv:2609.26918`** (*Preference Coverage Collapse*) before freezing final novelty wording. Expand the current 28-paper course library to **45–60 grounded primary references** across 5 clusters (MORL foundations, 2025–2026 MORL frontier, RL curriculum/UED, PopArt & multi-task gradient conflict like PCGrad/CAGrad/Nash-MTL, and `rliable` statistical evaluation) to meet RLC / IEEE TNNLS citation standards.
 
 ---
 
